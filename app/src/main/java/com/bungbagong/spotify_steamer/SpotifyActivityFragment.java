@@ -1,16 +1,29 @@
 package com.bungbagong.spotify_steamer;
 
-import android.support.v4.app.Fragment;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
+import java.io.BufferedReader;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import kaaes.spotify.webapi.android.SpotifyApi;
+import kaaes.spotify.webapi.android.SpotifyService;
+import kaaes.spotify.webapi.android.models.Artist;
+import kaaes.spotify.webapi.android.models.ArtistsPager;
 
 
 /**
@@ -18,7 +31,9 @@ import java.util.List;
  */
 public class SpotifyActivityFragment extends Fragment {
 
+    private static final String CLIENT_ID = "8fd3c936235a427dae86000fe48d5cc8";
 
+    public final String LOG_CAT = this.getClass().getSimpleName();
     ArrayAdapter<String> mForecastAdapter;
 
 
@@ -30,7 +45,7 @@ public class SpotifyActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
 
 
-        //return inflater.inflate(R.layout.fragment_spotify, container, false);
+
 
 
         // Create some dummy data for the ListView.  Here's a sample weekly forecast
@@ -62,6 +77,75 @@ public class SpotifyActivityFragment extends Fragment {
         ListView listView = (ListView) rootView.findViewById(R.id.list_view_item_artist);
         listView.setAdapter(mForecastAdapter);
 
+
+        EditText artist_name = (EditText) rootView.findViewById(R.id.edit_text_artist_name);
+        Listener editlistener = new Listener();
+        artist_name.setOnEditorActionListener(editlistener);
+
+
+
+
         return rootView;
     }
+
+    public class SpotifyQueryTask extends AsyncTask<Void, Void, Void> {
+
+        private final String LOG_TAG = SpotifyQueryTask.class.getSimpleName();
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            // These two need to be declared outside the try/catch
+            // so that they can be closed in the finally block.
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+
+            // Will contain the raw JSON response as a string.
+            String forecastJsonStr = null;
+
+
+
+
+
+            try {
+                SpotifyApi api = new SpotifyApi();
+
+                SpotifyService spotify = api.getService();
+
+                ArtistsPager results = spotify.searchArtists("Beyonce");
+                Log.v(LOG_CAT,"bungbagong1");
+                List<Artist> list_artist = results.artists.items;
+
+                for (Artist i : list_artist){
+                    String name = i.name;
+                    Log.v(LOG_CAT, name);
+                    Log.v(LOG_CAT,"bungbagong");
+                }
+
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Error ", e);
+                // If the code didn't successfully get the weather data, there's no point in attemping
+                // to parse it.
+                return null;
+            }
+            return null;
+        }
+    }
+
+
+    public class Listener implements EditText.OnEditorActionListener {
+        @Override
+        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+            if (actionId == EditorInfo.IME_ACTION_NEXT ||
+                    actionId == EditorInfo.IME_ACTION_DONE ) {
+                //log.v(LOG_CAT,"testing before query");
+                SpotifyQueryTask spotifyQuery = new SpotifyQueryTask();
+                spotifyQuery.execute();
+
+
+            }
+            return false;
+        }
+    }
+
+
 }
