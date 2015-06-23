@@ -88,12 +88,31 @@ public class SpotifyActivityFragment extends Fragment {
         return rootView;
     }
 
-    public class SpotifyQueryTask extends AsyncTask<Void, Void, Void> {
+    public class SpotifyQueryTask extends AsyncTask<String, Void, List<Artist>> {
 
+        protected List<Artist> list_artist;
         private final String LOG_TAG = SpotifyQueryTask.class.getSimpleName();
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected void onPostExecute(List<Artist> artistResult) {
+            //super.onPostExecute(strings);
+
+            //Log.v(LOG_TAG, strings.toString());
+            //List<Artist> strings = artistResult;
+            //List<String> results = new ArrayList<String>(Arrays.asList(strings));
+            mForecastAdapter.clear();
+            for(int i = 0; i < artistResult.size(); i++){
+                mForecastAdapter.add(artistResult.get(i).name);
+            }
+
+            mForecastAdapter.notifyDataSetChanged();
+
+        }
+
+
+
+        @Override
+        protected List<Artist> doInBackground(String... params) {
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
             HttpURLConnection urlConnection = null;
@@ -111,15 +130,14 @@ public class SpotifyActivityFragment extends Fragment {
 
                 SpotifyService spotify = api.getService();
 
-                ArtistsPager results = spotify.searchArtists("Beyonce");
-                Log.v(LOG_CAT,"bungbagong1");
-                List<Artist> list_artist = results.artists.items;
+                ArtistsPager results = spotify.searchArtists(params[0]);
+                //Log.v(LOG_CAT,"bungbagong1");
+                list_artist = results.artists.items;
 
                 for (Artist i : list_artist){
                     String name = i.name;
                     Log.v(LOG_CAT, name);
-                    Log.v(LOG_CAT,"bungbagong");
-                }
+                 }
 
             } catch (Exception e) {
                 Log.e(LOG_TAG, "Error ", e);
@@ -127,7 +145,7 @@ public class SpotifyActivityFragment extends Fragment {
                 // to parse it.
                 return null;
             }
-            return null;
+            return list_artist;
         }
     }
 
@@ -138,8 +156,9 @@ public class SpotifyActivityFragment extends Fragment {
             if (actionId == EditorInfo.IME_ACTION_NEXT ||
                     actionId == EditorInfo.IME_ACTION_DONE ) {
                 //log.v(LOG_CAT,"testing before query");
+                String artist_name = v.getText().toString();
                 SpotifyQueryTask spotifyQuery = new SpotifyQueryTask();
-                spotifyQuery.execute();
+                spotifyQuery.execute(artist_name);
 
 
             }
