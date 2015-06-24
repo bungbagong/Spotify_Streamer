@@ -135,7 +135,7 @@ public class SpotifyActivityFragment extends Fragment {
             //else{
             //    artistArrayAdapter.clear();
             //    artistArrayAdapter.setArtists(artistResult);
-                artistArrayAdapter.notifyDataSetChanged();
+            //    artistArrayAdapter.notifyDataSetChanged();
 
 
             //}

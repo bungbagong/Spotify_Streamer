@@ -2,6 +2,7 @@ package com.bungbagong.spotify_steamer;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,12 +63,12 @@ public class ArtistArrayAdapter extends ArrayAdapter<Artist> {
             //int width = 1000;
             for (int i = 0; i < artist_i.images.size(); i++ ){
                 int width = artist_i.images.get(i).width;
-                if (a > width && a >=80){
+                if (a >= width && width >=64){
                     b = i;
                     a = width;
                 }
             }
-
+            Log.v("width",artist_i.images.get(b).width.toString()+"  "+ artist_i.images.get(b).height.toString());
             Picasso.with(context).load(artist_i.images.get(b).url).into(artistImage);
         }
         return view;

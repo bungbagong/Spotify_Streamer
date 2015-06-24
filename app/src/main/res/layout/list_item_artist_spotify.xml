@@ -7,15 +7,19 @@
     <ImageView
         android:layout_width="80dp"
         android:layout_height="80dp"
-
+        android:padding="8dp"
         android:src="@drawable/dummy_24dp"
         android:id="@+id/list_item_image_view_artist"
         android:adjustViewBounds="false"
-        android:scaleType="centerCrop" />
+        android:scaleType="fitCenter" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/list_item_text_view_artist"/>
+        android:padding="8dp"
+        android:id="@+id/list_item_text_view_artist"
+        android:gravity="center_vertical"
+        android:textAlignment="center"
+        android:textAppearance="?android:textAppearanceLarge"/>
 
 </LinearLayout>
