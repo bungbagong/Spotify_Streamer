@@ -36,6 +36,7 @@ public class SpotifyActivityFragment extends Fragment {
 
     public final String LOG_CAT = this.getClass().getSimpleName();
     ArrayAdapter<String> mForecastAdapter;
+    ArtistArrayAdapter artistArrayAdapter;
 
 
     public SpotifyActivityFragment() {
@@ -113,12 +114,32 @@ public class SpotifyActivityFragment extends Fragment {
             //Log.v(LOG_TAG, strings.toString());
             //List<Artist> strings = artistResult;
             //List<String> results = new ArrayList<String>(Arrays.asList(strings));
-            mForecastAdapter.clear();
-            for(int i = 0; i < artistResult.size(); i++){
-                mForecastAdapter.add(artistResult.get(i).name);
-            }
 
-            mForecastAdapter.notifyDataSetChanged();
+            //mForecastAdapter.clear();
+            //for(int i = 0; i < artistResult.size(); i++){
+             //   mForecastAdapter.add(artistResult.get(i).name);
+            //}
+
+            //mForecastAdapter.notifyDataSetChanged();
+
+            //if (artistArrayAdapter == null) {
+                artistArrayAdapter = new ArtistArrayAdapter(
+                        getActivity(), R.layout.list_item_artist_spotify, artistResult);
+
+                //View rootView = inflater.inflate(R.layout.fragment_spotify, container, false);
+
+                // Get a reference to the ListView, and attach this adapter to it.
+                ListView listView = (ListView) getView().findViewById(R.id.list_view_item_artist);
+                listView.setAdapter(artistArrayAdapter);
+            //}
+            //else{
+            //    artistArrayAdapter.clear();
+            //    artistArrayAdapter.setArtists(artistResult);
+                artistArrayAdapter.notifyDataSetChanged();
+
+
+            //}
+
 
         }
 
