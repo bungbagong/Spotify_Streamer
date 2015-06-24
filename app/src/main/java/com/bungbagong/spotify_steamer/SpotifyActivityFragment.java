@@ -79,10 +79,13 @@ public class SpotifyActivityFragment extends Fragment {
         listView.setAdapter(mForecastAdapter);
 
 
-        SearchView search = (SearchView)rootView.findViewById(R.id.edit_text_artist_name);
+        SearchView search = (SearchView)rootView.findViewById(R.id.search_artist_name);
         search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                String artist_name = query;
+                SpotifyQueryTask spotifyQuery = new SpotifyQueryTask();
+                spotifyQuery.execute(artist_name);
                 getView().clearFocus();
                 return false;
             }

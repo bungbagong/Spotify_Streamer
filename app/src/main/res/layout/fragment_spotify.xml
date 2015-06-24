@@ -9,15 +9,19 @@
     tools:context=".SpotifyActivityFragment">
 
     <SearchView
+        android:layout_marginTop="10dp"
         android:layout_width="fill_parent"
-        android:layout_height="10dp"
-        android:id="@+id/edit_text_artist_name"
+        android:layout_height="wrap_content"
+        android:searchIcon="@android:drawable/ic_search_category_default"
+        android:id="@+id/search_artist_name"
+        android:imeOptions="flagNoExtractUi"
          />
 
     <ListView
+        android:layout_marginTop="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/edit_text_artist_name"
+        android:layout_below="@id/search_artist_name"
         android:id="@+id/list_view_item_artist" />
 
 </RelativeLayout>
