@@ -12,6 +12,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
@@ -78,10 +79,19 @@ public class SpotifyActivityFragment extends Fragment {
         listView.setAdapter(mForecastAdapter);
 
 
-        EditText artist_name = (EditText) rootView.findViewById(R.id.edit_text_artist_name);
-        Listener editlistener = new Listener();
-        artist_name.setOnEditorActionListener(editlistener);
+        SearchView search = (SearchView)rootView.findViewById(R.id.edit_text_artist_name);
+        search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                getView().clearFocus();
+                return false;
+            }
 
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
 
 
 
@@ -155,11 +165,10 @@ public class SpotifyActivityFragment extends Fragment {
         public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
             if (actionId == EditorInfo.IME_ACTION_NEXT ||
                     actionId == EditorInfo.IME_ACTION_DONE ) {
-                //log.v(LOG_CAT,"testing before query");
+
                 String artist_name = v.getText().toString();
                 SpotifyQueryTask spotifyQuery = new SpotifyQueryTask();
                 spotifyQuery.execute(artist_name);
-
 
             }
             return false;
