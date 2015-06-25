@@ -1,5 +1,6 @@
 package com.bungbagong.spotify_steamer;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,11 +15,10 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.net.HttpURLConnection;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
@@ -46,38 +46,11 @@ public class SpotifyActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-
-
-
-
-        // Create some dummy data for the ListView.  Here's a sample weekly forecast
-        String[] data = {
-                "Mon 6/23 - Sunny - 31/17",
-                "Tue 6/24 - Foggy - 21/8",
-                "Wed 6/25 - Cloudy - 22/17",
-                "Thurs 6/26 - Rainy - 18/11",
-                "Fri 6/27 - Foggy - 21/10",
-                "Sat 6/28 - TRAPPED IN WEATHERSTATION - 23/18",
-                "Sun 6/29 - Sunny - 20/7"
-        };
-        List<String> weekForecast = new ArrayList<String>(Arrays.asList(data));
-
-
-        // Now that we have some dummy forecast data, create an ArrayAdapter.
-        // The ArrayAdapter will take data from a source (like our dummy forecast) and
-        // use it to populate the ListView it's attached to.
-        mForecastAdapter =
-                new ArrayAdapter<String>(
-                        getActivity(), // The current context (this activity)
-                        R.layout.list_item_artist_spotify, // The name of the layout ID.
-                        R.id.list_item_text_view_artist, // The ID of the textview to populate.
-                        weekForecast);
-
         View rootView = inflater.inflate(R.layout.fragment_spotify, container, false);
 
         // Get a reference to the ListView, and attach this adapter to it.
-        ListView listView = (ListView) rootView.findViewById(R.id.list_view_item_artist);
-        listView.setAdapter(mForecastAdapter);
+        //ListView listView = (ListView) rootView.findViewById(R.id.list_view_item_artist);
+        //listView.setAdapter(mForecastAdapter);
 
 
         SearchView search = (SearchView)rootView.findViewById(R.id.search_artist_name);
@@ -109,38 +82,31 @@ public class SpotifyActivityFragment extends Fragment {
 
         @Override
         protected void onPostExecute(List<Artist> artistResult) {
-            //super.onPostExecute(strings);
 
-            //Log.v(LOG_TAG, strings.toString());
-            //List<Artist> strings = artistResult;
-            //List<String> results = new ArrayList<String>(Arrays.asList(strings));
+            if(artistResult == null || artistResult.isEmpty()) {
+                Context context = getActivity();
 
-            //mForecastAdapter.clear();
-            //for(int i = 0; i < artistResult.size(); i++){
-             //   mForecastAdapter.add(artistResult.get(i).name);
-            //}
+                if(context!=null) {
+                    Toast.makeText
+                            (context,"There is no data for this artist.",Toast.LENGTH_LONG).show();
+                }
+            }
+            else {
+                if (artistArrayAdapter == null) {
+                    artistArrayAdapter = new ArtistArrayAdapter(
+                            getActivity(), R.layout.list_item_artist_spotify, artistResult);
+                    ListView listView = (ListView) getView().
+                            findViewById(R.id.list_view_item_artist);
+                    listView.setAdapter(artistArrayAdapter);
+                }
 
-            //mForecastAdapter.notifyDataSetChanged();
+                else {
+                    artistArrayAdapter.clear();
+                    artistArrayAdapter.addAll(artistResult);
+                    artistArrayAdapter.notifyDataSetChanged();
+                }
 
-            //if (artistArrayAdapter == null) {
-                artistArrayAdapter = new ArtistArrayAdapter(
-                        getActivity(), R.layout.list_item_artist_spotify, artistResult);
-
-                //View rootView = inflater.inflate(R.layout.fragment_spotify, container, false);
-
-                // Get a reference to the ListView, and attach this adapter to it.
-                ListView listView = (ListView) getView().findViewById(R.id.list_view_item_artist);
-                listView.setAdapter(artistArrayAdapter);
-            //}
-            //else{
-            //    artistArrayAdapter.clear();
-            //    artistArrayAdapter.setArtists(artistResult);
-            //    artistArrayAdapter.notifyDataSetChanged();
-
-
-            //}
-
-
+            }
         }
 
 

@@ -23,20 +23,15 @@ import kaaes.spotify.webapi.android.models.Artist;
 public class ArtistArrayAdapter extends ArrayAdapter<Artist> {
 
     private Context context;
-    private List<Artist> list_artist;
-    private int resource;
+
 
     public ArtistArrayAdapter(Context context, int resource, List<Artist> artists){
         super(context,resource,artists);
         this.context = context;
-        this.list_artist = artists;
-        this.resource = resource;
-    }
 
 
-    public void setArtists(List<Artist> list){
-        this.list_artist = list;
     }
+
 
 
     @Override
