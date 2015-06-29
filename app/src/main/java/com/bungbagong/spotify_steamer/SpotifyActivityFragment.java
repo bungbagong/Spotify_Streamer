@@ -17,14 +17,16 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.net.HttpURLConnection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.ArtistsPager;
+import kaaes.spotify.webapi.android.models.Track;
+import kaaes.spotify.webapi.android.models.Tracks;
 
 
 /**
@@ -113,17 +115,6 @@ public class SpotifyActivityFragment extends Fragment {
 
         @Override
         protected List<Artist> doInBackground(String... params) {
-            // These two need to be declared outside the try/catch
-            // so that they can be closed in the finally block.
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-
-            // Will contain the raw JSON response as a string.
-            String forecastJsonStr = null;
-
-
-
-
 
             try {
                 SpotifyApi api = new SpotifyApi();
@@ -138,6 +129,21 @@ public class SpotifyActivityFragment extends Fragment {
                     String name = i.name;
                     Log.v(LOG_CAT, name);
                  }
+
+                //Trial get toptrack artis
+
+                String id = list_artist.get(0).id;
+                Map<String,Object> map = new HashMap<String,Object>();
+                map.put("country","SG");
+                Tracks tracks = spotify.getArtistTopTrack(id,map);
+                List<Track> trackList = tracks.tracks;
+                for(Track i : trackList){
+                    String name = i.name;
+                    String album = i.album.name;
+
+                    Log.v(LOG_CAT,name + " : " +album);
+                }
+
 
             } catch (Exception e) {
                 Log.e(LOG_TAG, "Error ", e);
