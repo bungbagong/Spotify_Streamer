@@ -28,7 +28,7 @@ import kaaes.spotify.webapi.android.models.Tracks;
 public class TopTrackActivityFragment extends Fragment {
 
     public String artist_id;
-    TopTrackArrayAdapter topTracksArrayAdapter;
+    public TopTrackArrayAdapter topTracksArrayAdapter;
 
     public TopTrackActivityFragment() {
     }
@@ -56,8 +56,15 @@ public class TopTrackActivityFragment extends Fragment {
         @Override
         protected void onPostExecute(List<Track> topTracksResult) {
 
+            for (Track i : topTracksResult){
+                String name = i.name;
+                String album= i.album.name;
+                Log.v("onPostExecute", name+" "+album);
+            }
 
-                if (topTracksArrayAdapter == null) {
+
+
+            if (topTracksArrayAdapter == null) {
                     topTracksArrayAdapter = new TopTrackArrayAdapter(
                             getActivity(), R.layout.list_item_top_tracks, topTracksResult);
                     ListView listView = (ListView) getView().
@@ -89,6 +96,11 @@ public class TopTrackActivityFragment extends Fragment {
                 Tracks tracks = spotify.getArtistTopTrack(artist_id,map);
                 list_tracks = tracks.tracks;
 
+                for (Track i : list_tracks){
+                    String name = i.name;
+                    String album= i.album.name;
+                    Log.v("test", name+" "+album);
+                }
 
 
             } catch (Exception e) {

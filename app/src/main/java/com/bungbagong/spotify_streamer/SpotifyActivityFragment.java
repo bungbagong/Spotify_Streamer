@@ -73,8 +73,7 @@ public class SpotifyActivityFragment extends Fragment {
 
         artistArrayAdapter = new ArtistArrayAdapter(
                 getActivity(), R.layout.list_item_artist_spotify, new ArrayList<Artist>());
-        ListView listView = (ListView) getView().
-                findViewById(R.id.list_view_item_artist);
+        ListView listView = (ListView) rootView.findViewById(R.id.list_view_item_artist);
         listView.setAdapter(artistArrayAdapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -83,6 +82,7 @@ public class SpotifyActivityFragment extends Fragment {
                 Intent intent = new Intent(getActivity(),TopTrackActivity.class);
                 artist_id = list_artist.get(position).id;
                 intent.putExtra(TopTrackActivity.ARTIST_ID,artist_id);
+                startActivity(intent);
             }
         });
 

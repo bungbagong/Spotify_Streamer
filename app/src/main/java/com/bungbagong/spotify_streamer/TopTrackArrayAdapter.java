@@ -22,12 +22,19 @@ import kaaes.spotify.webapi.android.models.Track;
  */
 public class TopTrackArrayAdapter extends ArrayAdapter<Track> {
 
-    protected List<Track> toptracks;
-    Context context;
+    //protected List<Track> toptracks;
+    Context context_view;
 
     public TopTrackArrayAdapter(Context context, int resource, List<Track> tracks){
         super(context,resource,tracks);
-        this.context = context;
+        this.context_view = context;
+
+        for (Track i : tracks){
+            String name = i.name;
+            String album= i.album.name;
+            Log.v("test", name+" "+album);
+        }
+
     }
 
 
@@ -36,7 +43,7 @@ public class TopTrackArrayAdapter extends ArrayAdapter<Track> {
 
         Track track_i = getItem(position);
 
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) context_view.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.list_item_top_tracks, null);
 
         TextView trackName = (TextView) view.findViewById(R.id.list_item_text_view_top_tracks);
@@ -45,6 +52,8 @@ public class TopTrackArrayAdapter extends ArrayAdapter<Track> {
 
         trackName.setText(track_i.name);
         albumName.setText(track_i.album.name);
+
+        Log.v("tag",track_i.name + ":"+ track_i.album.name);
 
         if(track_i.album.images.size() != 0) {
 
@@ -59,7 +68,7 @@ public class TopTrackArrayAdapter extends ArrayAdapter<Track> {
                 }
             }
             Log.v("width", track_i.album.images.get(b).width.toString() + "  " + track_i.album.images.get(b).height.toString());
-            Picasso.with(context).load(track_i.album.images.get(b).url).into(albumImage);
+            Picasso.with(context_view).load(track_i.album.images.get(b).url).into(albumImage);
 
         }
         return view;
