@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.bungbagong.spotify_steamer.R;
@@ -29,6 +28,7 @@ import kaaes.spotify.webapi.android.models.Tracks;
 public class TopTrackActivityFragment extends Fragment {
 
     public String artist_id;
+    TopTrackArrayAdapter topTracksArrayAdapter;
 
     public TopTrackActivityFragment() {
     }
@@ -38,8 +38,11 @@ public class TopTrackActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         Intent intent = getActivity().getIntent();
-        artist_id = intent.getStringExtra(getActivity().ARTIST_ID);
-        Log.v("artist_ID","artist id = "+artist_id);
+        artist_id = intent.getStringExtra(TopTrackActivity.ARTIST_ID);
+        Log.v("artist_ID", "artist id = " + artist_id);
+
+        TopTracksQueryTask trackQuery = new TopTracksQueryTask();
+        trackQuery.execute(artist_id);
 
 
         return inflater.inflate(R.layout.fragment_top_track, container, false);
@@ -55,10 +58,10 @@ public class TopTrackActivityFragment extends Fragment {
 
 
                 if (topTracksArrayAdapter == null) {
-                    topTracksArrayAdapter = new TopTracksArrayAdapter(
-                            getActivity(), R.layout.list_item_artist_spotify, topTracksResult);
+                    topTracksArrayAdapter = new TopTrackArrayAdapter(
+                            getActivity(), R.layout.list_item_top_tracks, topTracksResult);
                     ListView listView = (ListView) getView().
-                            findViewById(R.id.list_view_item_artist);
+                            findViewById(R.id.list_view_top_tracks);
                     listView.setAdapter(topTracksArrayAdapter);
                 }
 
@@ -85,12 +88,7 @@ public class TopTrackActivityFragment extends Fragment {
                 map.put("country","SG");
                 Tracks tracks = spotify.getArtistTopTrack(artist_id,map);
                 list_tracks = tracks.tracks;
-                for(Track i : trackList){
-                    String name = i.name;
-                    String album = i.album.name;
 
-                    Log.v(LOG_CAT,name + " : " +album);
-                }
 
 
             } catch (Exception e) {

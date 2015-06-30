@@ -1,6 +1,7 @@
 package com.bungbagong.spotify_streamer;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,7 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SearchView;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 
 import com.bungbagong.spotify_steamer.R;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,10 +39,11 @@ import kaaes.spotify.webapi.android.models.Tracks;
 public class SpotifyActivityFragment extends Fragment {
 
     private static final String CLIENT_ID = "8fd3c936235a427dae86000fe48d5cc8";
-
+    protected List<Artist> list_artist;
     public final String LOG_CAT = this.getClass().getSimpleName();
-    ArrayAdapter<String> mForecastAdapter;
+    //ArrayAdapter<String> mForecastAdapter;
     ArtistArrayAdapter artistArrayAdapter;
+    String artist_id;
 
 
     public SpotifyActivityFragment() {
@@ -52,18 +55,12 @@ public class SpotifyActivityFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_spotify, container, false);
 
-        // Get a reference to the ListView, and attach this adapter to it.
-        //ListView listView = (ListView) rootView.findViewById(R.id.list_view_item_artist);
-        //listView.setAdapter(mForecastAdapter);
-
-
         SearchView search = (SearchView)rootView.findViewById(R.id.search_artist_name);
         search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                String artist_name = query;
                 SpotifyQueryTask spotifyQuery = new SpotifyQueryTask();
-                spotifyQuery.execute(artist_name);
+                spotifyQuery.execute(query);
                 getView().clearFocus();
                 return false;
             }
@@ -74,14 +71,27 @@ public class SpotifyActivityFragment extends Fragment {
             }
         });
 
+        artistArrayAdapter = new ArtistArrayAdapter(
+                getActivity(), R.layout.list_item_artist_spotify, new ArrayList<Artist>());
+        ListView listView = (ListView) getView().
+                findViewById(R.id.list_view_item_artist);
+        listView.setAdapter(artistArrayAdapter);
 
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getActivity(),TopTrackActivity.class);
+                artist_id = list_artist.get(position).id;
+                intent.putExtra(TopTrackActivity.ARTIST_ID,artist_id);
+            }
+        });
 
         return rootView;
     }
 
     public class SpotifyQueryTask extends AsyncTask<String, Void, List<Artist>> {
 
-        protected List<Artist> list_artist;
+
         private final String LOG_TAG = SpotifyQueryTask.class.getSimpleName();
 
         @Override
