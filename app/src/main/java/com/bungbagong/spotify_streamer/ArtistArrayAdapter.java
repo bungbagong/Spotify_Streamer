@@ -1,4 +1,4 @@
-package com.bungbagong.spotify_steamer;
+package com.bungbagong.spotify_streamer;
 
 import android.app.Activity;
 import android.content.Context;
@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bungbagong.spotify_steamer.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;

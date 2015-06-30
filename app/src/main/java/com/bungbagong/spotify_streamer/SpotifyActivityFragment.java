@@ -1,4 +1,4 @@
-package com.bungbagong.spotify_steamer;
+package com.bungbagong.spotify_streamer;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -16,6 +16,8 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bungbagong.spotify_steamer.R;
 
 import java.util.HashMap;
 import java.util.List;

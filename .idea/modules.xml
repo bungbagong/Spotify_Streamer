@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Spotify_Steamer.iml" filepath="$PROJECT_DIR$/Spotify_Steamer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Spotify_Streamer.iml" filepath="$PROJECT_DIR$/Spotify_Streamer.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

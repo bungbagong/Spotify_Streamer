@@ -1,24 +1,28 @@
-package com.bungbagong.spotify_steamer;
+package com.bungbagong.spotify_streamer;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.bungbagong.spotify_steamer.R;
 
-public class SpotifyActivity extends ActionBarActivity {
+
+public class TopTrackActivity extends ActionBarActivity {
+
+    public static final String ARTIST_ID = "ARTIST_ID";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_spotify);
+        setContentView(R.layout.activity_top_track);
     }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_spotify, menu);
+        getMenuInflater().inflate(R.menu.menu_top_track, menu);
         return true;
     }
 

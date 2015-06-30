@@ -1,4 +1,4 @@
-package com.bungbagong.spotify_steamer;
+package com.bungbagong.spotify_streamer;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
