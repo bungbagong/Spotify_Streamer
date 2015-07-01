@@ -36,8 +36,21 @@ public class SpotifyActivityFragment extends Fragment {
     String artist_id;
     ArrayList<SimpleArtist> artistParcel;
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        if (artistParcel != null){
+            outState.putParcelableArrayList("artist", artistParcel);
+        }
+        super.onSaveInstanceState(outState);
+    }
 
-    public SpotifyActivityFragment() {
+    @Override
+    public void onViewStateRestored(Bundle savedInstanceState) {
+        if(savedInstanceState != null){
+            artistParcel = savedInstanceState.getParcelableArrayList("artist");
+
+        }
+        super.onViewStateRestored(savedInstanceState);
     }
 
     @Override
@@ -62,8 +75,16 @@ public class SpotifyActivityFragment extends Fragment {
             }
         });
 
-        artistArrayAdapter = new ArtistArrayAdapter(
-                getActivity(), R.layout.list_item_artist_spotify, new ArrayList<Artist>());
+        if(savedInstanceState != null){
+            artistParcel = savedInstanceState.getParcelableArrayList("artist");
+            artistArrayAdapter = new ArtistArrayAdapter(
+                    getActivity(), R.layout.list_item_artist_spotify, artistParcel);
+        }
+        if(artistParcel==null) {
+            artistArrayAdapter = new ArtistArrayAdapter(
+                    getActivity(), R.layout.list_item_artist_spotify, new ArrayList<SimpleArtist>());
+        }
+
         ListView listView = (ListView) rootView.findViewById(R.id.list_view_item_artist);
         listView.setAdapter(artistArrayAdapter);
 
@@ -80,13 +101,13 @@ public class SpotifyActivityFragment extends Fragment {
         return rootView;
     }
 
-    public class SpotifyQueryTask extends AsyncTask<String, Void, List<Artist>> {
+    public class SpotifyQueryTask extends AsyncTask<String, Void, List<SimpleArtist>> {
 
 
         private final String LOG_TAG = SpotifyQueryTask.class.getSimpleName();
 
         @Override
-        protected void onPostExecute(List<Artist> artistResult) {
+        protected void onPostExecute(List<SimpleArtist> artistResult) {
 
             if(artistResult == null || artistResult.isEmpty()) {
                 Context context = getActivity();
@@ -116,7 +137,7 @@ public class SpotifyActivityFragment extends Fragment {
 
 
         @Override
-        protected List<Artist> doInBackground(String... params) {
+        protected List<SimpleArtist> doInBackground(String... params) {
 
             try {
                 SpotifyApi api = new SpotifyApi();
@@ -138,7 +159,7 @@ public class SpotifyActivityFragment extends Fragment {
                 return null;
             }
 
-            return list_artist;
+            return artistParcel;
         }
 
 

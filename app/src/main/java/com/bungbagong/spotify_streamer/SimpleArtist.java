@@ -7,6 +7,7 @@ import android.os.Parcelable;
  * Created by bungbagong on 1/7/2015.
  */
 public class SimpleArtist implements Parcelable {
+
     private String id;
     private String name;
     private String image_640px;
@@ -49,5 +50,21 @@ public class SimpleArtist implements Parcelable {
         name = in.readString();
         image_640px = in.readString();
         image_200px = in.readString();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getImage_640px() {
+        return image_640px;
+    }
+
+    public String getImage_200px() {
+        return image_200px;
     }
 }
