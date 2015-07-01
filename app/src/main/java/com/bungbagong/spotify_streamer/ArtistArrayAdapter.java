@@ -22,26 +22,16 @@ import kaaes.spotify.webapi.android.models.Artist;
  * Created by bungbagong on 24/6/2015.
  */
 public class ArtistArrayAdapter extends ArrayAdapter<Artist> {
-
     private Context context;
-
 
     public ArtistArrayAdapter(Context context, int resource, List<Artist> artists){
         super(context,resource,artists);
         this.context = context;
-
-
     }
-
-
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-
-        // Get the data item for this position
         Artist artist_i = getItem(position);
-
-
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.list_item_artist_spotify, null);
@@ -54,18 +44,17 @@ public class ArtistArrayAdapter extends ArrayAdapter<Artist> {
 
         if(artist_i.images.size() != 0) {
 
-            int a = 1000;
-            int b = 0;
-            //int width = 1000;
+            int currentWidth = 1000;
+            int imgPos = 0;
             for (int i = 0; i < artist_i.images.size(); i++ ){
                 int width = artist_i.images.get(i).width;
-                if (a >= width && width >=64){
-                    b = i;
-                    a = width;
+                if (currentWidth >= width && width >=64){
+                    imgPos = i;
+                    currentWidth = width;
                 }
             }
-            Log.v("width",artist_i.images.get(b).width.toString()+"  "+ artist_i.images.get(b).height.toString());
-            Picasso.with(context).load(artist_i.images.get(b).url).into(artistImage);
+            Log.v("width",artist_i.images.get(imgPos).width.toString()+"  "+ artist_i.images.get(imgPos).height.toString());
+            Picasso.with(context).load(artist_i.images.get(imgPos).url).into(artistImage);
         }
         return view;
 

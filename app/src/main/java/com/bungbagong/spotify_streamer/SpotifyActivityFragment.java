@@ -6,31 +6,23 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SearchView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bungbagong.spotify_steamer.R;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.ArtistsPager;
-import kaaes.spotify.webapi.android.models.Track;
-import kaaes.spotify.webapi.android.models.Tracks;
 
 
 /**
@@ -38,12 +30,11 @@ import kaaes.spotify.webapi.android.models.Tracks;
  */
 public class SpotifyActivityFragment extends Fragment {
 
-    private static final String CLIENT_ID = "8fd3c936235a427dae86000fe48d5cc8";
     protected List<Artist> list_artist;
     public final String LOG_CAT = this.getClass().getSimpleName();
-    //ArrayAdapter<String> mForecastAdapter;
     ArtistArrayAdapter artistArrayAdapter;
     String artist_id;
+    ArrayList<SimpleArtist> artistParcel;
 
 
     public SpotifyActivityFragment() {
@@ -109,8 +100,7 @@ public class SpotifyActivityFragment extends Fragment {
                 if (artistArrayAdapter == null) {
                     artistArrayAdapter = new ArtistArrayAdapter(
                             getActivity(), R.layout.list_item_artist_spotify, artistResult);
-                    ListView listView = (ListView) getView().
-                            findViewById(R.id.list_view_item_artist);
+                    ListView listView = (ListView) getView().findViewById(R.id.list_view_item_artist);
                     listView.setAdapter(artistArrayAdapter);
                 }
 
@@ -130,58 +120,44 @@ public class SpotifyActivityFragment extends Fragment {
 
             try {
                 SpotifyApi api = new SpotifyApi();
-
                 SpotifyService spotify = api.getService();
-
                 ArtistsPager results = spotify.searchArtists(params[0]);
-                //Log.v(LOG_CAT,"bungbagong1");
                 list_artist = results.artists.items;
 
+
+                //putting artist results into parcelable arraylist
+                artistParcel = new ArrayList<SimpleArtist>();
                 for (Artist i : list_artist){
-                    String name = i.name;
-                    Log.v(LOG_CAT, name);
+                    artistParcel.add(new SimpleArtist(
+                            i.id,i.name,getImageSize(i,640),getImageSize(i,200)
+                    ));
                  }
-
-                //Trial get toptrack artis
-
-                String id = list_artist.get(0).id;
-                Map<String,Object> map = new HashMap<String,Object>();
-                map.put("country","SG");
-                Tracks tracks = spotify.getArtistTopTrack(id,map);
-                List<Track> trackList = tracks.tracks;
-                for(Track i : trackList){
-                    String name = i.name;
-                    String album = i.album.name;
-
-                    Log.v(LOG_CAT,name + " : " +album);
-                }
-
 
             } catch (Exception e) {
                 Log.e(LOG_TAG, "Error ", e);
-                // If the code didn't successfully get the weather data, there's no point in attemping
-                // to parse it.
                 return null;
             }
+
             return list_artist;
         }
-    }
 
 
-    public class Listener implements EditText.OnEditorActionListener {
-        @Override
-        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-            if (actionId == EditorInfo.IME_ACTION_NEXT ||
-                    actionId == EditorInfo.IME_ACTION_DONE ) {
-
-                String artist_name = v.getText().toString();
-                SpotifyQueryTask spotifyQuery = new SpotifyQueryTask();
-                spotifyQuery.execute(artist_name);
-
-            }
-            return false;
+        protected String getImageSize(Artist artist_i, int imgSize){
+                int targetWidth = imgSize;
+                for (int i = 0; i < artist_i.images.size(); i++ ){
+                    int currentWidth = artist_i.images.get(i).width;
+                    if (targetWidth == currentWidth){
+                        return artist_i.images.get(i).url;
+                    }
+                }
+                return null;
         }
+
+
     }
+
+
+
 
 
 }
