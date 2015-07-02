@@ -171,7 +171,10 @@ public class SpotifyActivityFragment extends Fragment {
                     int currentWidth = artist_i.images.get(i).width;
                     if (targetWidth == currentWidth){
                         return artist_i.images.get(i).url;
+                    } else if(targetWidth > currentWidth) { //get any size smaller than target
+                        return artist_i.images.get(i).url;
                     }
+
                 }
                 return null;
         }

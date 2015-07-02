@@ -138,6 +138,8 @@ public class TopTrackActivityFragment extends Fragment {
                 int currentWidth = track_i.album.images.get(i).width;
                 if (targetWidth == currentWidth){
                     return track_i.album.images.get(i).url;
+                } else if(targetWidth > currentWidth) { //get any image one size smaller
+                    return track_i.album.images.get(i).url;
                 }
             }
             return null;
