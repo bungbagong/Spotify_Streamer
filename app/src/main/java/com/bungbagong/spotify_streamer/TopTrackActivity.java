@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
 import android.view.MenuItem;
 
 import com.bungbagong.spotify_steamer.R;
@@ -24,17 +23,11 @@ public class TopTrackActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String artist_name = intent.getStringExtra(ARTIST_NAME);
         android.support.v7.app.ActionBar mActionBar = getSupportActionBar();
-        mActionBar.setSubtitle(artist_name);
-
+        if (mActionBar != null) {
+            mActionBar.setSubtitle(artist_name);
+        }
     }
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_top_track, menu);
-        return true;
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -43,12 +36,11 @@ public class TopTrackActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //Log.v("where", "onOptionItemSeleted");
+
         if(id == android.R.id.home){
              NavUtils.navigateUpTo(this,new Intent
                     (this,SpotifyActivity.class).setFlags
                     (Intent.FLAG_ACTIVITY_CLEAR_TOP));
-            //Log.v("where","after selecting home button");
             return true;
         }
         //noinspection SimplifiableIfStatement

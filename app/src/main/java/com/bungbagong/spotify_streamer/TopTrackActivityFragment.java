@@ -15,6 +15,7 @@ import com.bungbagong.spotify_steamer.R;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
@@ -31,6 +32,7 @@ public class TopTrackActivityFragment extends Fragment {
     public String artist_id;
     public TopTrackArrayAdapter topTracksArrayAdapter;
     public ArrayList<SimpleTrack> trackParcel;
+    private final String LOG_TAG = this.getClass().getSimpleName();
 
     public TopTrackActivityFragment() {
     }
@@ -87,7 +89,7 @@ public class TopTrackActivityFragment extends Fragment {
     public class TopTracksQueryTask extends AsyncTask<String, Void, List<SimpleTrack>> {
 
         protected List<Track> list_tracks;
-        private final String LOG_TAG = TopTracksQueryTask.class.getSimpleName();
+
 
         @Override
         protected void onPostExecute(List<SimpleTrack> topTracksResult) {
@@ -105,7 +107,7 @@ public class TopTrackActivityFragment extends Fragment {
                 SpotifyService spotify = api.getService();
 
                 Map<String,Object> map = new HashMap<String,Object>();
-                map.put("country","SG");
+                map.put("country",getLocalCountry());
                 Tracks tracks = spotify.getArtistTopTrack(artist_id,map);
                 String artistName = (spotify.getArtist(artist_id)).name;
                 list_tracks = tracks.tracks;
@@ -141,6 +143,14 @@ public class TopTrackActivityFragment extends Fragment {
             }
             return null;
 
+        }
+
+        private String getLocalCountry(){
+            String country = Locale.getDefault().getCountry();
+            if (country.equals("")){
+                country = "US";
+            }
+            return country;
         }
         
         

@@ -115,7 +115,6 @@ public class SpotifyActivityFragment extends Fragment {
 
     public class SpotifyQueryTask extends AsyncTask<String, Void, List<SimpleArtist>> {
 
-        private final String LOG_TAG = SpotifyQueryTask.class.getSimpleName();
 
         @Override
         protected void onPostExecute(List<SimpleArtist> artistResult) {
@@ -153,7 +152,7 @@ public class SpotifyActivityFragment extends Fragment {
                  }
 
             } catch (Exception e) {
-                Log.e(LOG_TAG, "Error ", e);
+                Log.e(LOG_CAT, "Error ", e);
                 return null;
             }
 
@@ -161,8 +160,7 @@ public class SpotifyActivityFragment extends Fragment {
         }
 
 
-        protected String getImageSize(Artist artist_i, int imgSize){
-                int targetWidth = imgSize;
+        protected String getImageSize(Artist artist_i, int targetWidth){
                 for (int i = 0; i < artist_i.images.size(); i++ ){
                     int currentWidth = artist_i.images.get(i).width;
                     if (targetWidth == currentWidth){
