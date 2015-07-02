@@ -12,7 +12,7 @@
         android:adjustViewBounds="false"
         android:padding="8dp"
         android:scaleType="fitCenter"
-        android:src="@drawable/dummy_24dp" />
+        android:src="@drawable/image_200" />
 
 
 

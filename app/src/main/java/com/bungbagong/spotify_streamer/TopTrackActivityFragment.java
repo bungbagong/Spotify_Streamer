@@ -12,6 +12,7 @@ import android.widget.ListView;
 
 import com.bungbagong.spotify_steamer.R;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,40 +30,55 @@ public class TopTrackActivityFragment extends Fragment {
 
     public String artist_id;
     public TopTrackArrayAdapter topTracksArrayAdapter;
+    public ArrayList<SimpleTrack> trackParcel;
 
     public TopTrackActivityFragment() {
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+
+        if(trackParcel!=null){
+            outState.putParcelableArrayList("topTracks",trackParcel);
+        }
+
+        super.onSaveInstanceState(outState);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        Intent intent = getActivity().getIntent();
-        artist_id = intent.getStringExtra(TopTrackActivity.ARTIST_ID);
-        Log.v("artist_ID", "artist id = " + artist_id);
+        View rootView = inflater.inflate(R.layout.fragment_top_track, container, false);
 
-        TopTracksQueryTask trackQuery = new TopTracksQueryTask();
-        trackQuery.execute(artist_id);
+        if(savedInstanceState!=null){
+            trackParcel = savedInstanceState.getParcelableArrayList("topTracks");
+            artist_id = trackParcel.get(0).getId();
 
+                topTracksArrayAdapter = new TopTrackArrayAdapter(
+                        getActivity(), R.layout.list_item_top_tracks, trackParcel);
+                ListView listView = (ListView) rootView.
+                        findViewById(R.id.list_view_top_tracks);
+                listView.setAdapter(topTracksArrayAdapter);
 
-        return inflater.inflate(R.layout.fragment_top_track, container, false);
+        }
+        else {
+            Intent intent = getActivity().getIntent();
+            artist_id = intent.getStringExtra(TopTrackActivity.ARTIST_ID);
+            TopTracksQueryTask trackQuery = new TopTracksQueryTask();
+            trackQuery.execute(artist_id);
+        }
+
+        return rootView;
     }
 
-    public class TopTracksQueryTask extends AsyncTask<String, Void, List<Track>> {
+    public class TopTracksQueryTask extends AsyncTask<String, Void, List<SimpleTrack>> {
 
         protected List<Track> list_tracks;
         private final String LOG_TAG = TopTracksQueryTask.class.getSimpleName();
 
         @Override
-        protected void onPostExecute(List<Track> topTracksResult) {
-
-            for (Track i : topTracksResult){
-                String name = i.name;
-                String album= i.album.name;
-                Log.v("onPostExecute", name+" "+album);
-            }
-
-
+        protected void onPostExecute(List<SimpleTrack> topTracksResult) {
 
             if (topTracksArrayAdapter == null) {
                     topTracksArrayAdapter = new TopTrackArrayAdapter(
@@ -84,7 +100,7 @@ public class TopTrackActivityFragment extends Fragment {
 
 
         @Override
-        protected List<Track> doInBackground(String... params) {
+        protected List<SimpleTrack> doInBackground(String... params) {
 
             try {
                 SpotifyApi api = new SpotifyApi();
@@ -94,12 +110,19 @@ public class TopTrackActivityFragment extends Fragment {
                 Map<String,Object> map = new HashMap<String,Object>();
                 map.put("country","SG");
                 Tracks tracks = spotify.getArtistTopTrack(artist_id,map);
+                String artistName = (spotify.getArtist(artist_id)).name;
                 list_tracks = tracks.tracks;
 
+                trackParcel = new ArrayList<SimpleTrack>();
                 for (Track i : list_tracks){
-                    String name = i.name;
-                    String album= i.album.name;
-                    Log.v("test", name+" "+album);
+                    trackParcel.add(new SimpleTrack(
+                            artistName,
+                            artist_id,
+                            i.album.name,
+                            i.name,
+                            getImageByWidth(i, 640),
+                            getImageByWidth(i,200)
+                    ));
                 }
 
 
@@ -107,7 +130,19 @@ public class TopTrackActivityFragment extends Fragment {
                 Log.e(LOG_TAG, "Error ", e);
                 return null;
             }
-            return list_tracks;
+            return trackParcel;
         }
+
+        protected String getImageByWidth(Track track_i, int targetWidth){
+            for (int i = 0; i < track_i.album.images.size(); i++ ){
+                int currentWidth = track_i.album.images.get(i).width;
+                if (targetWidth == currentWidth){
+                    return track_i.album.images.get(i).url;
+                }
+            }
+            return null;
+        }
+        
+        
     }
 }

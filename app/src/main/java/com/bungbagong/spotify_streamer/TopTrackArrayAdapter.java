@@ -2,7 +2,6 @@ package com.bungbagong.spotify_streamer;
 
 import android.app.Activity;
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,33 +14,23 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-import kaaes.spotify.webapi.android.models.Track;
-
 /**
  * Created by bungbagong on 30/6/2015.
  */
-public class TopTrackArrayAdapter extends ArrayAdapter<Track> {
+public class TopTrackArrayAdapter extends ArrayAdapter<SimpleTrack> {
 
-    //protected List<Track> toptracks;
     Context context_view;
 
-    public TopTrackArrayAdapter(Context context, int resource, List<Track> tracks){
+    public TopTrackArrayAdapter(Context context, int resource, List<SimpleTrack> tracks){
         super(context,resource,tracks);
         this.context_view = context;
-
-        for (Track i : tracks){
-            String name = i.name;
-            String album= i.album.name;
-            Log.v("test", name+" "+album);
-        }
-
     }
 
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        Track track_i = getItem(position);
+        SimpleTrack track_i = getItem(position);
 
         LayoutInflater inflater = (LayoutInflater) context_view.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.list_item_top_tracks, null);
@@ -50,26 +39,11 @@ public class TopTrackArrayAdapter extends ArrayAdapter<Track> {
         ImageView albumImage = (ImageView) view.findViewById(R.id.list_item_image_view_album);
         TextView albumName = (TextView) view.findViewById(R.id.list_item_text_view_album_name);
 
-        trackName.setText(track_i.name);
-        albumName.setText(track_i.album.name);
+        trackName.setText(track_i.getTrack());
+        albumName.setText(track_i.getAlbum());
 
-        Log.v("tag",track_i.name + ":"+ track_i.album.name);
-
-        if(track_i.album.images.size() != 0) {
-
-            int a = 1000;
-            int b = 0;
-            //int width = 1000;
-            for (int i = 0; i < track_i.album.images.size(); i++ ){
-                int width = track_i.album.images.get(i).width;
-                if (a >= width && width >=64){
-                    b = i;
-                    a = width;
-                }
-            }
-            Log.v("width", track_i.album.images.get(b).width.toString() + "  " + track_i.album.images.get(b).height.toString());
-            Picasso.with(context_view).load(track_i.album.images.get(b).url).into(albumImage);
-
+        if(track_i.getImage_200px() != null){
+            Picasso.with(context_view).load(track_i.getImage_200px()).into(albumImage);
         }
         return view;
 

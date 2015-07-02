@@ -92,7 +92,7 @@ public class SpotifyActivityFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(getActivity(),TopTrackActivity.class);
-                artist_id = list_artist.get(position).id;
+                artist_id = artistParcel.get(position).getId();
                 intent.putExtra(TopTrackActivity.ARTIST_ID,artist_id);
                 startActivity(intent);
             }
@@ -114,7 +114,9 @@ public class SpotifyActivityFragment extends Fragment {
 
                 if(context!=null) {
                     Toast.makeText
-                            (context,"There is no data for this artist.",Toast.LENGTH_LONG).show();
+                            (context,"There is no data for this artist. " +
+                                    "Make sure the name is spelled correctly.",
+                                    Toast.LENGTH_LONG).show();
                 }
             }
             else {
