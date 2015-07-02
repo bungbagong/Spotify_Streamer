@@ -1,8 +1,7 @@
 <resources>
     <string name="app_name">Spotify_Streamer</string>
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_top_track">TopTrackActivity</string>
+    <string name="title_activity_top_track">Top 10 Tracks</string>
 
 
 </resources>

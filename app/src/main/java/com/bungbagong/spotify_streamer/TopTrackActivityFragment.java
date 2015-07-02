@@ -54,15 +54,9 @@ public class TopTrackActivityFragment extends Fragment {
         if(savedInstanceState!=null){
             trackParcel = savedInstanceState.getParcelableArrayList("topTracks");
             artist_id = trackParcel.get(0).getId();
-
-                topTracksArrayAdapter = new TopTrackArrayAdapter(
-                        getActivity(), R.layout.list_item_top_tracks, trackParcel);
-                ListView listView = (ListView) rootView.
-                        findViewById(R.id.list_view_top_tracks);
-                listView.setAdapter(topTracksArrayAdapter);
-
+            buildAdapter(rootView, trackParcel);
         }
-        else {
+        else {  //if Fragment is triggered by intent, query top tracks
             Intent intent = getActivity().getIntent();
             artist_id = intent.getStringExtra(TopTrackActivity.ARTIST_ID);
             TopTracksQueryTask trackQuery = new TopTracksQueryTask();
@@ -72,6 +66,24 @@ public class TopTrackActivityFragment extends Fragment {
         return rootView;
     }
 
+    public void buildAdapter(View rootView, List<SimpleTrack> topTracksResult){
+
+
+        if (topTracksArrayAdapter == null) {
+            topTracksArrayAdapter = new TopTrackArrayAdapter(
+                    getActivity(), R.layout.list_item_top_tracks, topTracksResult);
+            ListView listView = (ListView)
+                    rootView.findViewById(R.id.list_view_top_tracks);
+            listView.setAdapter(topTracksArrayAdapter);
+        }
+
+        else {
+            topTracksArrayAdapter.clear();
+            topTracksArrayAdapter.addAll(topTracksResult);
+            topTracksArrayAdapter.notifyDataSetChanged();
+        }
+    }
+
     public class TopTracksQueryTask extends AsyncTask<String, Void, List<SimpleTrack>> {
 
         protected List<Track> list_tracks;
@@ -79,22 +91,7 @@ public class TopTrackActivityFragment extends Fragment {
 
         @Override
         protected void onPostExecute(List<SimpleTrack> topTracksResult) {
-
-            if (topTracksArrayAdapter == null) {
-                    topTracksArrayAdapter = new TopTrackArrayAdapter(
-                            getActivity(), R.layout.list_item_top_tracks, topTracksResult);
-                    ListView listView = (ListView) getView().
-                            findViewById(R.id.list_view_top_tracks);
-                    listView.setAdapter(topTracksArrayAdapter);
-                }
-
-                else {
-                    topTracksArrayAdapter.clear();
-                    topTracksArrayAdapter.addAll(topTracksResult);
-                    topTracksArrayAdapter.notifyDataSetChanged();
-                }
-
-
+            buildAdapter(getView(), topTracksResult);
         }
 
 
@@ -143,6 +140,7 @@ public class TopTrackActivityFragment extends Fragment {
                 }
             }
             return null;
+
         }
         
         

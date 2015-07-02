@@ -57,7 +57,7 @@ public class SpotifyActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View rootView = inflater.inflate(R.layout.fragment_spotify, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_spotify, container, false);
 
         SearchView search = (SearchView)rootView.findViewById(R.id.search_artist_name);
         search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -65,7 +65,7 @@ public class SpotifyActivityFragment extends Fragment {
             public boolean onQueryTextSubmit(String query) {
                 SpotifyQueryTask spotifyQuery = new SpotifyQueryTask();
                 spotifyQuery.execute(query);
-                getView().clearFocus();
+                rootView.clearFocus();
                 return false;
             }
 
@@ -77,32 +77,43 @@ public class SpotifyActivityFragment extends Fragment {
 
         if(savedInstanceState != null){
             artistParcel = savedInstanceState.getParcelableArrayList("artist");
-            artistArrayAdapter = new ArtistArrayAdapter(
-                    getActivity(), R.layout.list_item_artist_spotify, artistParcel);
+            buildAdapter(rootView,artistParcel);
         }
-        if(artistParcel==null) {
-            artistArrayAdapter = new ArtistArrayAdapter(
-                    getActivity(), R.layout.list_item_artist_spotify, new ArrayList<SimpleArtist>());
-        }
-
-        ListView listView = (ListView) rootView.findViewById(R.id.list_view_item_artist);
-        listView.setAdapter(artistArrayAdapter);
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getActivity(),TopTrackActivity.class);
-                artist_id = artistParcel.get(position).getId();
-                intent.putExtra(TopTrackActivity.ARTIST_ID,artist_id);
-                startActivity(intent);
-            }
-        });
 
         return rootView;
     }
 
-    public class SpotifyQueryTask extends AsyncTask<String, Void, List<SimpleArtist>> {
+    public void buildAdapter(View view, List<SimpleArtist> artistResult){
 
+
+        if (artistArrayAdapter == null) {
+            artistArrayAdapter = new ArtistArrayAdapter(
+                    getActivity(), R.layout.list_item_artist_spotify, artistResult);
+            ListView listView = (ListView) view.findViewById(R.id.list_view_item_artist);
+            listView.setAdapter(artistArrayAdapter);
+
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Intent intent = new Intent(getActivity(), TopTrackActivity.class);
+                    artist_id = artistParcel.get(position).getId();
+                    String artist_name = artistParcel.get(position).getName();
+                    intent.putExtra(TopTrackActivity.ARTIST_ID, artist_id);
+                    intent.putExtra(TopTrackActivity.ARTIST_NAME,artist_name);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
+                }
+            });
+        }
+
+        else {
+            artistArrayAdapter.clear();
+            artistArrayAdapter.addAll(artistResult);
+            artistArrayAdapter.notifyDataSetChanged();
+        }
+    }
+
+    public class SpotifyQueryTask extends AsyncTask<String, Void, List<SimpleArtist>> {
 
         private final String LOG_TAG = SpotifyQueryTask.class.getSimpleName();
 
@@ -111,7 +122,6 @@ public class SpotifyActivityFragment extends Fragment {
 
             if(artistResult == null || artistResult.isEmpty()) {
                 Context context = getActivity();
-
                 if(context!=null) {
                     Toast.makeText
                             (context,"There is no data for this artist. " +
@@ -120,23 +130,9 @@ public class SpotifyActivityFragment extends Fragment {
                 }
             }
             else {
-                if (artistArrayAdapter == null) {
-                    artistArrayAdapter = new ArtistArrayAdapter(
-                            getActivity(), R.layout.list_item_artist_spotify, artistResult);
-                    ListView listView = (ListView) getView().findViewById(R.id.list_view_item_artist);
-                    listView.setAdapter(artistArrayAdapter);
-                }
-
-                else {
-                    artistArrayAdapter.clear();
-                    artistArrayAdapter.addAll(artistResult);
-                    artistArrayAdapter.notifyDataSetChanged();
-                }
-
+                buildAdapter(getView(),artistResult);
             }
         }
-
-
 
         @Override
         protected List<SimpleArtist> doInBackground(String... params) {
