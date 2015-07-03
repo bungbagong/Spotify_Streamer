@@ -4,11 +4,12 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
+import android.support.v4.app.NavUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.bungbagong.spotify_steamer.R;
 
@@ -22,6 +23,7 @@ import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.Tracks;
+import retrofit.RetrofitError;
 
 
 /**
@@ -30,6 +32,7 @@ import kaaes.spotify.webapi.android.models.Tracks;
 public class TopTrackActivityFragment extends Fragment {
 
     public String artist_id;
+    public String artist_name;
     public TopTrackArrayAdapter topTracksArrayAdapter;
     public ArrayList<SimpleTrack> trackParcel;
     private final String LOG_TAG = this.getClass().getSimpleName();
@@ -53,14 +56,16 @@ public class TopTrackActivityFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_top_track, container, false);
 
-        if(savedInstanceState!=null){
+        if(savedInstanceState!=null){ //rebuild the View
             trackParcel = savedInstanceState.getParcelableArrayList("topTracks");
             artist_id = trackParcel.get(0).getId();
+            artist_name = trackParcel.get(0).getArtist();
             buildAdapter(rootView, trackParcel);
         }
-        else {  //if Fragment is triggered by intent, query top tracks
+        else {  //if Fragment is triggered by intent, query top tracks based on artist id
             Intent intent = getActivity().getIntent();
             artist_id = intent.getStringExtra(TopTrackActivity.ARTIST_ID);
+            artist_name = intent.getStringExtra(TopTrackActivity.ARTIST_NAME);
             TopTracksQueryTask trackQuery = new TopTracksQueryTask();
             trackQuery.execute(artist_id);
         }
@@ -68,8 +73,8 @@ public class TopTrackActivityFragment extends Fragment {
         return rootView;
     }
 
+    //Build the View based on new query result
     public void buildAdapter(View rootView, List<SimpleTrack> topTracksResult){
-
 
         if (topTracksArrayAdapter == null) {
             topTracksArrayAdapter = new TopTrackArrayAdapter(
@@ -93,7 +98,18 @@ public class TopTrackActivityFragment extends Fragment {
 
         @Override
         protected void onPostExecute(List<SimpleTrack> topTracksResult) {
-            buildAdapter(getView(), topTracksResult);
+
+            if (topTracksResult == null || topTracksResult.isEmpty()){
+                Toast.makeText(getActivity(),getString(R.string.no_top_track_error),
+                                                                Toast.LENGTH_LONG).show();
+
+                NavUtils.navigateUpTo(getActivity(), new Intent
+                        (getActivity(), SpotifyActivity.class).setFlags
+                        (Intent.FLAG_ACTIVITY_CLEAR_TOP));  //returning to Main Activity
+
+            } else {
+                buildAdapter(getView(), topTracksResult); //rebuild the view based on result
+            }
         }
 
 
@@ -101,43 +117,58 @@ public class TopTrackActivityFragment extends Fragment {
         @Override
         protected List<SimpleTrack> doInBackground(String... params) {
 
+            String artistName ="";
+
             try {
                 SpotifyApi api = new SpotifyApi();
-
                 SpotifyService spotify = api.getService();
 
-                Map<String,Object> map = new HashMap<String,Object>();
-                map.put("country",getLocalCountry());
-                Tracks tracks = spotify.getArtistTopTrack(artist_id,map);
-                String artistName = (spotify.getArtist(artist_id)).name;
+                //Build a Map for option pair: country = "XX" based on Locale setting
+                Map<String, Object> map = new HashMap<String, Object>();
+                map.put("country", getLocalCountry());
+
+                Tracks tracks = spotify.getArtistTopTrack(artist_id, map);
+                artistName = (spotify.getArtist(artist_id)).name;
                 list_tracks = tracks.tracks;
 
-                trackParcel = new ArrayList<SimpleTrack>();
-                for (Track i : list_tracks){
+            } catch (RetrofitError e) {
+                cancel(true); //cancelled= true, trigger onCancelled() instead of onPostExecute()
+            }
+
+            if (!isCancelled()) {                               //if no Retrofit error
+                trackParcel = new ArrayList<SimpleTrack>();     //put required data into List
+                for (Track i : list_tracks) {
                     trackParcel.add(new SimpleTrack(
                             artistName,
                             artist_id,
                             i.album.name,
                             i.name,
                             getImageByWidth(i, 640),
-                            getImageByWidth(i,200)
+                            getImageByWidth(i, 200)
                     ));
                 }
-
-
-            } catch (Exception e) {
-                Log.e(LOG_TAG, "Error ", e);
-                return null;
             }
             return trackParcel;
         }
 
+        //Called if cancel() was called. Toast and return to MainActivity
+        @Override
+        protected void onCancelled(List<SimpleTrack> simpleTracks) { //called if Retrofit error
+            Toast.makeText(getActivity(), getString(R.string.no_internet_error),
+                                                                Toast.LENGTH_LONG).show();
+
+            NavUtils.navigateUpTo(getActivity(), new Intent
+                    (getActivity(), SpotifyActivity.class).setFlags
+                    (Intent.FLAG_ACTIVITY_CLEAR_TOP));  //returning to Main Activity
+        }
+
+        //getting url of image with equal targetWidth or one step smaller
         protected String getImageByWidth(Track track_i, int targetWidth){
             for (int i = 0; i < track_i.album.images.size(); i++ ){
                 int currentWidth = track_i.album.images.get(i).width;
-                if (targetWidth == currentWidth){
+                if (targetWidth == currentWidth){ //try to get equal width as target
                     return track_i.album.images.get(i).url;
-                } else if(targetWidth > currentWidth) { //get any image one size smaller
+                } else if(targetWidth > currentWidth) { //if fail, get any image one size smaller
                     return track_i.album.images.get(i).url;
                 }
             }

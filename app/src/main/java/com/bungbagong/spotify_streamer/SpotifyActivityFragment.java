@@ -1,11 +1,9 @@
 package com.bungbagong.spotify_streamer;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,10 +21,11 @@ import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.ArtistsPager;
+import retrofit.RetrofitError;
 
 
 /**
- * A placeholder fragment containing a simple view.
+ * Fragment Search Artist Name
  */
 public class SpotifyActivityFragment extends Fragment {
 
@@ -44,14 +43,6 @@ public class SpotifyActivityFragment extends Fragment {
         super.onSaveInstanceState(outState);
     }
 
-    @Override
-    public void onViewStateRestored(Bundle savedInstanceState) {
-        if(savedInstanceState != null){
-            artistParcel = savedInstanceState.getParcelableArrayList("artist");
-
-        }
-        super.onViewStateRestored(savedInstanceState);
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -59,6 +50,7 @@ public class SpotifyActivityFragment extends Fragment {
 
         final View rootView = inflater.inflate(R.layout.fragment_spotify, container, false);
 
+        //Setup text listener for search view
         SearchView search = (SearchView)rootView.findViewById(R.id.search_artist_name);
         search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -75,8 +67,10 @@ public class SpotifyActivityFragment extends Fragment {
             }
         });
 
-        if(savedInstanceState != null){
+        if(savedInstanceState != null) {
             artistParcel = savedInstanceState.getParcelableArrayList("artist");
+        }
+        if (artistParcel != null) {
             buildAdapter(rootView,artistParcel);
         }
 
@@ -92,6 +86,7 @@ public class SpotifyActivityFragment extends Fragment {
             ListView listView = (ListView) view.findViewById(R.id.list_view_item_artist);
             listView.setAdapter(artistArrayAdapter);
 
+            //set onItemClickListener, on click open Top Track Activity, send = artist id and name
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -120,13 +115,10 @@ public class SpotifyActivityFragment extends Fragment {
         protected void onPostExecute(List<SimpleArtist> artistResult) {
 
             if(artistResult == null || artistResult.isEmpty()) {
-                Context context = getActivity();
-                if(context!=null) {
                     Toast.makeText
-                            (context,"There is no data for this artist. " +
-                                    "Make sure the name is spelled correctly.",
+                            (getActivity(),getString(R.string.no_artist_error),
                                     Toast.LENGTH_LONG).show();
-                }
+                    buildAdapter(getView(),new ArrayList<SimpleArtist>()); //empty listView
             }
             else {
                 buildAdapter(getView(),artistResult);
@@ -142,28 +134,35 @@ public class SpotifyActivityFragment extends Fragment {
                 ArtistsPager results = spotify.searchArtists(params[0]);
                 list_artist = results.artists.items;
 
+            } catch (RetrofitError e) {
+                cancel(true); //cancelled= true, trigger onCancelled() instead of onPostExecute()
+            }
 
+            if(!isCancelled()) {
                 //putting artist results into parcelable arraylist
                 artistParcel = new ArrayList<SimpleArtist>();
-                for (Artist i : list_artist){
+                for (Artist i : list_artist) {
                     artistParcel.add(new SimpleArtist(
-                            i.id,i.name,getImageSize(i,640),getImageSize(i,200)
+                            i.id, i.name, getImageSize(i, 640), getImageSize(i, 200)
                     ));
-                 }
-
-            } catch (Exception e) {
-                Log.e(LOG_CAT, "Error ", e);
-                return null;
+                }
             }
 
             return artistParcel;
         }
 
 
+        //called if isCancelled = true after doInBackground()
+        @Override
+        protected void onCancelled(List<SimpleArtist> simpleArtists) {
+            Toast.makeText(getActivity(), getString(R.string.no_internet_error) ,Toast.LENGTH_LONG).show();
+        }
+
+        //getting url of image with equal targetWidth or one step smaller
         protected String getImageSize(Artist artist_i, int targetWidth){
                 for (int i = 0; i < artist_i.images.size(); i++ ){
                     int currentWidth = artist_i.images.get(i).width;
-                    if (targetWidth == currentWidth){
+                    if (targetWidth == currentWidth){ //try to get target Width
                         return artist_i.images.get(i).url;
                     } else if(targetWidth > currentWidth) { //get any size smaller than target
                         return artist_i.images.get(i).url;
