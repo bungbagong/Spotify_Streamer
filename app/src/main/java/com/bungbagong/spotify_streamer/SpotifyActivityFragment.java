@@ -61,14 +61,17 @@ public class SpotifyActivityFragment extends Fragment {
                 return false;
             }
 
+
             @Override
             public boolean onQueryTextChange(String newText) {
                 return false;
             }
         });
+        search.clearFocus(); //to prevent focusing on search view after rebuild
 
         if(savedInstanceState != null) {
             artistParcel = savedInstanceState.getParcelableArrayList("artist");
+
         }
         if (artistParcel != null) {
             buildAdapter(rootView,artistParcel);
@@ -155,7 +158,8 @@ public class SpotifyActivityFragment extends Fragment {
         //called if isCancelled = true after doInBackground()
         @Override
         protected void onCancelled(List<SimpleArtist> simpleArtists) {
-            Toast.makeText(getActivity(), getString(R.string.no_internet_error) ,Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), getString(R.string.no_internet_error) ,
+                                                                    Toast.LENGTH_LONG).show();
         }
 
         //getting url of image with equal targetWidth or one step smaller
