@@ -1,6 +1,5 @@
 package com.bungbagong.spotify_streamer;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -33,7 +32,14 @@ public class SpotifyActivityFragment extends Fragment {
     public final String LOG_CAT = this.getClass().getSimpleName();
     ArtistArrayAdapter artistArrayAdapter;
     String artist_id;
+    String artist_name;
     ArrayList<SimpleArtist> artistParcel;
+
+
+    public static interface Callback {
+        public void onItemSelected(ArrayList<String> artist_data);
+    }
+
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -93,13 +99,16 @@ public class SpotifyActivityFragment extends Fragment {
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Intent intent = new Intent(getActivity(), TopTrackActivity.class);
+
                     artist_id = artistParcel.get(position).getId();
-                    String artist_name = artistParcel.get(position).getName();
-                    intent.putExtra(TopTrackActivity.ARTIST_ID, artist_id);
-                    intent.putExtra(TopTrackActivity.ARTIST_NAME,artist_name);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    startActivity(intent);
+                    artist_name = artistParcel.get(position).getName();
+                    ArrayList<String> artist_data = new ArrayList<String>();
+                    artist_data.add(artist_id);
+                    artist_data.add(artist_name);
+
+                    ((Callback)getActivity()).onItemSelected(artist_data);
+
+
                 }
             });
         }

@@ -26,6 +26,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.bungbagong.spotify_streamer.SpotifyActivity" />
         </activity>
+        <activity
+            android:name="com.bungbagong.spotify_streamer.TrackPlayerActivity"
+            android:label="@string/title_activity_track_player"
+            android:parentActivityName="com.bungbagong.spotify_streamer.TopTrackActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.bungbagong.spotify_streamer.TopTrackActivity" />
+        </activity>
     </application>
 
 </manifest>

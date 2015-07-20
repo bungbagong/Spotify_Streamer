@@ -8,6 +8,7 @@ import android.support.v4.app.NavUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -44,7 +45,7 @@ public class TopTrackActivityFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
 
         if(trackParcel!=null){
-            outState.putParcelableArrayList("topTracks",trackParcel);
+            outState.putParcelableArrayList("topTracks", trackParcel);
         }
 
         super.onSaveInstanceState(outState);
@@ -62,12 +63,17 @@ public class TopTrackActivityFragment extends Fragment {
             artist_name = trackParcel.get(0).getArtist();
             buildAdapter(rootView, trackParcel);
         }
-        else {  //if Fragment is triggered by intent, query top tracks based on artist id
-            Intent intent = getActivity().getIntent();
-            artist_id = intent.getStringExtra(TopTrackActivity.ARTIST_ID);
-            artist_name = intent.getStringExtra(TopTrackActivity.ARTIST_NAME);
-            TopTracksQueryTask trackQuery = new TopTracksQueryTask();
-            trackQuery.execute(artist_id);
+        else { //if new fragment is created
+
+            Bundle arguments = getArguments();
+            if (arguments != null) {
+
+
+                artist_id = arguments.getString(TopTrackActivity.ARTIST_ID);
+                artist_name = arguments.getString(TopTrackActivity.ARTIST_NAME);
+                TopTracksQueryTask trackQuery = new TopTracksQueryTask();
+                trackQuery.execute(artist_id);
+            }
         }
 
         return rootView;
@@ -82,6 +88,14 @@ public class TopTrackActivityFragment extends Fragment {
             ListView listView = (ListView)
                     rootView.findViewById(R.id.list_view_top_tracks);
             listView.setAdapter(topTracksArrayAdapter);
+
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Intent intent = new Intent(getActivity(), TrackPlayerActivity.class);
+                    startActivity(intent);
+                }
+            });
         }
 
         else {

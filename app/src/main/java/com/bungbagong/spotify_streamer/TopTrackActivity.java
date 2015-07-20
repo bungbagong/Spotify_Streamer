@@ -17,14 +17,27 @@ public class TopTrackActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
         setContentView(R.layout.activity_top_track);
-        Intent intent = getIntent();
-        String artist_name = intent.getStringExtra(ARTIST_NAME);
-        android.support.v7.app.ActionBar mActionBar = getSupportActionBar();
-        if (mActionBar != null) {
-            mActionBar.setSubtitle(artist_name);
+
+        if (savedInstanceState == null) {
+            Intent intent = getIntent();
+            String artist_name = intent.getStringExtra(ARTIST_NAME);
+            android.support.v7.app.ActionBar mActionBar = getSupportActionBar();
+            if (mActionBar != null) {
+                mActionBar.setSubtitle(artist_name);
+            }
+
+            Bundle arguments = new Bundle();
+            arguments.putString(TopTrackActivity.ARTIST_ID, intent.getStringExtra(TopTrackActivity.ARTIST_ID));
+            arguments.putString(TopTrackActivity.ARTIST_NAME, intent.getStringExtra(TopTrackActivity.ARTIST_NAME));
+
+            TopTrackActivityFragment fragment = new TopTrackActivityFragment();
+            fragment.setArguments(arguments);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, fragment).commit();
+
+
         }
     }
 

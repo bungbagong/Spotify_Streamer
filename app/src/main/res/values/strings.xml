@@ -7,6 +7,8 @@
     <string name="no_top_track_error">No tracks can be found for this artist.</string>
     <string name="no_internet_error">Please check your internet connection
                                                             or try again later</string>
+    <string name="title_activity_track_player">Spotify Streamer</string>
+    <string name="hello_world">Hello world!</string>
 
 
 </resources>
