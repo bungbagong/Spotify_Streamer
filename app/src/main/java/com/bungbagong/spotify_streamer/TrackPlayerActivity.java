@@ -13,7 +13,7 @@ import com.bungbagong.spotify_steamer.R;
 
 public class TrackPlayerActivity extends AppCompatActivity {
 
-    boolean mIsLargeLayout = true;
+    boolean mIsLargeLayout = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +56,7 @@ public class TrackPlayerActivity extends AppCompatActivity {
         else {
             FragmentTransaction transaction = fragmentManager.beginTransaction();
             transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            transaction.add(android.R.id.content, newFragment).addToBackStack(null).commit();
+            transaction.add(R.id.fragment_track_player, newFragment).addToBackStack(null).commit();
         }
 
 
