@@ -2,6 +2,7 @@ package com.bungbagong.spotify_streamer;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 
 import com.bungbagong.spotify_steamer.R;
@@ -9,10 +10,12 @@ import com.bungbagong.spotify_steamer.R;
 import java.util.ArrayList;
 
 
-public class SpotifyActivity extends AppCompatActivity implements SpotifyActivityFragment.Callback{
+public class SpotifyActivity extends AppCompatActivity implements SpotifyActivityFragment.ArtistCallback, TopTrackActivityFragment.TracksCallback {
 
 
     private boolean mTwoPane;
+    public static final String TRACK_LIST = "TRACK_LIST";
+    public static final String POSITION = "POS";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +32,7 @@ public class SpotifyActivity extends AppCompatActivity implements SpotifyActivit
 
 
     @Override
-    public void onItemSelected(ArrayList<String> artist_data) {
+    public void onArtistSelected(ArrayList<String> artist_data) {
 
         String id = artist_data.get(0);
         String name = artist_data.get(1);
@@ -53,5 +56,18 @@ public class SpotifyActivity extends AppCompatActivity implements SpotifyActivit
             startActivity(intent);
 
         }
+    }
+
+    @Override
+    public void onTrackSelected(ArrayList<SimpleTrack> simpleTracks, int position) {
+        Bundle arguments = new Bundle();
+        arguments.putParcelableArrayList(TRACK_LIST,simpleTracks);
+        arguments.putInt(POSITION, position);
+
+        DialogPlayerActivityFragment newFragment = new DialogPlayerActivityFragment();
+        newFragment.setArguments(arguments);
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        newFragment.show(fragmentManager, "dialog");
     }
 }

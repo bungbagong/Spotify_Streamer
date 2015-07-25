@@ -36,8 +36,8 @@ public class SpotifyActivityFragment extends Fragment {
     ArrayList<SimpleArtist> artistParcel;
 
 
-    public static interface Callback {
-        public void onItemSelected(ArrayList<String> artist_data);
+    public static interface ArtistCallback {
+        public void onArtistSelected(ArrayList<String> artist_data);
     }
 
 
@@ -106,7 +106,7 @@ public class SpotifyActivityFragment extends Fragment {
                     artist_data.add(artist_id);
                     artist_data.add(artist_name);
 
-                    ((Callback)getActivity()).onItemSelected(artist_data);
+                    ((ArtistCallback)getActivity()).onArtistSelected(artist_data);
 
 
                 }

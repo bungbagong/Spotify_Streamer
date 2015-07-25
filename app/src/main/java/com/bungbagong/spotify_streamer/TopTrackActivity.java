@@ -8,11 +8,26 @@ import android.view.MenuItem;
 
 import com.bungbagong.spotify_steamer.R;
 
+import java.util.ArrayList;
 
-public class TopTrackActivity extends AppCompatActivity {
+
+public class TopTrackActivity extends AppCompatActivity implements TopTrackActivityFragment.TracksCallback{
 
     public static final String ARTIST_ID = "ARTIST_ID";
     public static final String ARTIST_NAME = "ARTIST_NAME";
+
+
+    @Override
+    public void onTrackSelected(ArrayList<SimpleTrack> simpleTracks, int position) {
+
+        Intent intent = new Intent(this, TrackPlayerActivity.class);
+
+        intent.putParcelableArrayListExtra(SpotifyActivity.TRACK_LIST, simpleTracks);
+        intent.putExtra(SpotifyActivity.POSITION, position);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        startActivity(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

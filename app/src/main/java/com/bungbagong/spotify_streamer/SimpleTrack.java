@@ -12,14 +12,22 @@ public class SimpleTrack implements Parcelable{
     private String id;
     private String album;
     private String track;
+
+
+
+    private String previewUrl;
+    private Long msDuration;
     private String image_200px;
     private String image_640px;
 
-    public SimpleTrack(String artist, String id, String album, String track, String image_640px, String image_200px){
+    public SimpleTrack(String artist, String id, String album, String track,
+                       String previewUrl, long msDuration, String image_640px, String image_200px){
         this.artist = artist;
         this.id = id;
         this.album = album;
         this.track = track;
+        this.previewUrl = previewUrl;
+        this.msDuration = msDuration;
         this.image_640px = image_640px;
         this.image_200px = image_200px;
     }
@@ -35,6 +43,8 @@ public class SimpleTrack implements Parcelable{
         dest.writeString(id);
         dest.writeString(album);
         dest.writeString(track);
+        dest.writeString(previewUrl);
+        dest.writeLong(msDuration);
         dest.writeString(image_640px);
         dest.writeString(image_200px);
     }
@@ -55,6 +65,8 @@ public class SimpleTrack implements Parcelable{
         id = in.readString();
         album = in.readString();
         track = in.readString();
+        previewUrl = in.readString();
+        msDuration = in.readLong();
         image_640px = in.readString();
         image_200px = in.readString();
     }
@@ -81,5 +93,13 @@ public class SimpleTrack implements Parcelable{
 
     public String getImage_640px() {
         return image_640px;
+    }
+
+    public String getPreviewUrl() {
+        return previewUrl;
+    }
+
+    public Long getMsDuration() {
+        return msDuration;
     }
 }

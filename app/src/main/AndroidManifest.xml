@@ -34,6 +34,12 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.bungbagong.spotify_streamer.TopTrackActivity" />
         </activity>
+
+        <service
+            android:name="com.bungbagong.spotify_streamer.MediaPlayerService"
+            android:enabled="true"
+            android:exported="false" >
+        </service>
     </application>
 
 </manifest>

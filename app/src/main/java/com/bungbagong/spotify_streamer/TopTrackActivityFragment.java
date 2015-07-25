@@ -38,6 +38,11 @@ public class TopTrackActivityFragment extends Fragment {
     public ArrayList<SimpleTrack> trackParcel;
     private final String LOG_TAG = this.getClass().getSimpleName();
 
+    public static interface TracksCallback {
+        public void onTrackSelected(ArrayList<SimpleTrack> simpleTracks, int position);
+    }
+
+
     public TopTrackActivityFragment() {
     }
 
@@ -92,8 +97,8 @@ public class TopTrackActivityFragment extends Fragment {
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Intent intent = new Intent(getActivity(), TrackPlayerActivity.class);
-                    startActivity(intent);
+
+                    ((TracksCallback) getActivity()).onTrackSelected(trackParcel, position);
                 }
             });
         }
@@ -104,6 +109,9 @@ public class TopTrackActivityFragment extends Fragment {
             topTracksArrayAdapter.notifyDataSetChanged();
         }
     }
+
+
+
 
     public class TopTracksQueryTask extends AsyncTask<String, Void, List<SimpleTrack>> {
 
@@ -157,6 +165,8 @@ public class TopTrackActivityFragment extends Fragment {
                             artist_id,
                             i.album.name,
                             i.name,
+                            i.preview_url,
+                            i.duration_ms,
                             getImageByWidth(i, 640),
                             getImageByWidth(i, 200)
                     ));
