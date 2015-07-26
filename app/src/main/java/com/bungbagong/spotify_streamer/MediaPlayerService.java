@@ -87,5 +87,8 @@ public void pause(){
         mMediaPlayer.start();
     }
 
+    public void reset(){
+        mMediaPlayer.reset();
+    }
 
 }
