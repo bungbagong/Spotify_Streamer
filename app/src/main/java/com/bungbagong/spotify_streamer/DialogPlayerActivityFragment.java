@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
@@ -15,6 +16,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bungbagong.spotify_steamer.R;
@@ -65,9 +67,15 @@ public class DialogPlayerActivityFragment extends DialogFragment implements View
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
-
-
+        //setRetainInstance(true);
+        if(savedInstanceState!= null) {
+            isInit = savedInstanceState.getBoolean("isInit");
+            isBound = savedInstanceState.getBoolean("isBound");
+            isPaused = savedInstanceState.getBoolean("isPaused");
+            position = savedInstanceState.getInt("position");
+            simpleTracks = savedInstanceState.getParcelableArrayList("simpleTracks");
+            previewUrl = savedInstanceState.getString("previewUrl");
+        }
 
 
     }
@@ -82,29 +90,29 @@ public class DialogPlayerActivityFragment extends DialogFragment implements View
     @Override
     public void onDetach() {
         super.onDetach();
-        if(getActivity().isFinishing() && isBound){
+/*        if(getActivity().isFinishing() && isBound){
             getActivity().unbindService(connection);
             isBound = false;
-        }
+        }*/
     }
 
     @Override
     public void onStart() {
         super.onStart();
-
-        if(!isBound) {
-            Intent intent = new Intent(getActivity(), MediaPlayerService.class);
-            getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
-
-
-        }
+        Intent intent = new Intent(getActivity(), MediaPlayerService.class);
+        getActivity().startService(intent);
+        getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        watchProgress();
     }
 
     @Override
     public void onStop() {
         super.onStop();
         Log.v("nanda", "DialogPlayerFragment onStop");
-
+        if(isBound){
+            getActivity().unbindService(connection);
+            isBound = false;
+        }
     }
 
     @Override
@@ -207,7 +215,12 @@ public class DialogPlayerActivityFragment extends DialogFragment implements View
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-
+        outState.putBoolean("isBound",isBound);
+        outState.putBoolean("isInit",isInit);
+        outState.putBoolean("isPaused",isPaused);
+        outState.putParcelableArrayList("simpleTracks",simpleTracks);
+        outState.putString("previewUrl", previewUrl);
+        outState.putInt("position",position);
     }
 
     @Override
@@ -269,7 +282,22 @@ public class DialogPlayerActivityFragment extends DialogFragment implements View
         return dialog;
     }
 
+    public void watchProgress(){
+        final Handler handler = new Handler();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                SeekBar seekBar = (SeekBar) getView().findViewById(R.id.seek_bar);
+                if (mediaPlayer!=null) {
 
+                    seekBar.setProgress(mediaPlayer.getProgress());
+                    Log.d("nanda", Integer.toString(mediaPlayer.getProgress()));
+                }
+                    handler.postDelayed(this,100);
+            }
+        });
+
+    }
 
 
 

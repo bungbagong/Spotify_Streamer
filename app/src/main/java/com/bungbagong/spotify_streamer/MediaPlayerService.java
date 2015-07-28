@@ -5,18 +5,48 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.Toast;
 
 public class MediaPlayerService extends Service implements MediaPlayer.OnPreparedListener {
 
     private final IBinder binder = new MediaPlayerBinder();
-    private MediaPlayer mMediaPlayer = null;
+    private MediaPlayer mMediaPlayer;
     private String previewUrl;
     public static final String PREVIEW_URL = "PREV_URL";
+    public int progress;
+
+
+
+    public int getProgress() {
+        return progress;
+    }
+
 
 
     public MediaPlayerService() {
+    }
+
+    private void watchProgress(){
+        final Handler handler = new Handler();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                long pos = mMediaPlayer.getCurrentPosition();
+                Log.d("current position =", Long.toString(pos));
+                long duration = 30000;
+                Log.d("duration =", Long.toString(duration));
+                double temp = ((double)pos/(double)duration)*100;
+                Log.d("temp =", Double.toString(temp));
+                progress = (int)temp;
+                Log.d("progress = ", Integer.toString(progress));
+                handler.postDelayed(this,100);
+            }
+        });
+
+
     }
 
 
@@ -44,12 +74,8 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnPrepare
     @Override
     public void onCreate() {
         super.onCreate();
-
-
-
-
-
     }
+
 
     @Override
     public void onPrepared(MediaPlayer mp) {
@@ -77,6 +103,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnPrepare
         }
         mMediaPlayer.setOnPreparedListener(this);
         mMediaPlayer.prepareAsync();
+        watchProgress();
     }
 
 public void pause(){
