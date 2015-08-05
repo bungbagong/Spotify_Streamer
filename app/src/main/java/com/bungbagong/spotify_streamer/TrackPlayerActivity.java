@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -53,7 +54,7 @@ public class TrackPlayerActivity extends AppCompatActivity {
             newFragment.setArguments(arguments);
             FragmentTransaction transaction = fragmentManager.beginTransaction();
             transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            transaction.add(R.id.fragment_track_player, newFragment, "dialog_fragment").addToBackStack(null).commit();
+            transaction.add(R.id.fragment_track_player, newFragment, "dialog_fragment").commit();
         }
     }
 
@@ -77,6 +78,12 @@ public class TrackPlayerActivity extends AppCompatActivity {
 
         }
 
+        if(id == android.R.id.home) {
+            NavUtils.navigateUpTo(this, new Intent
+                    (this, TopTrackActivity.class).setFlags
+                    (Intent.FLAG_ACTIVITY_CLEAR_TOP));
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
