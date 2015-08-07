@@ -23,6 +23,7 @@ import com.bungbagong.spotify_steamer.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -47,6 +48,7 @@ public class DialogPlayerActivityFragment extends DialogFragment implements View
     private ImageButton playButton;
     private TextView elapsedTime;
     private TextView endTime;
+    private long trackDuration = 30000;
 
     private Runnable ProgressRunnable = new Runnable() {
 
@@ -59,18 +61,17 @@ public class DialogPlayerActivityFragment extends DialogFragment implements View
 
             if (mediaPlayer != null) {
                 if (mediaPlayer.isSongPlaying()) {
-                    //if (!isPlaying) {
-                    //    playButton.setImageResource(android.R.drawable.ic_media_pause);
-                    //    isPlaying = true;
-                    //}
+                    //double pos = mediaPlayer.getProgress();
+                    //double temp = (pos/(double)trackDuration)*100;
+
                     seekBar.setProgress(mediaPlayer.getProgress());
-                    //Log.d("nanda", Integer.toString(mediaPlayer.getProgress()));
+                    elapsedTime.setText(formatStringDuration(mediaPlayer.getProgress()+500));
                 }
 
                 if (mediaPlayer.isSongCompleted()) {
                     isInit = false;
                     playButton.setImageResource(android.R.drawable.ic_media_play);
-                    Log.d("nanda", "isInit false");
+                    //Log.d("nanda", "isInit false");
 
                 }
             }
@@ -127,6 +128,7 @@ public class DialogPlayerActivityFragment extends DialogFragment implements View
             position = savedInstanceState.getInt("position");
             simpleTracks = savedInstanceState.getParcelableArrayList("simpleTracks");
             previewUrl = savedInstanceState.getString("previewUrl");
+            //trackDuration = savedInstanceState.getLong("trackDuration");
         }
 
 
@@ -169,7 +171,7 @@ public class DialogPlayerActivityFragment extends DialogFragment implements View
         if (isBound && getActivity().isFinishing()) {
             progressHandler.removeCallbacks(ProgressRunnable);
             mediaPlayer.release();
-            Log.v("nanda", "DialogPlayerFragment isFInishing");
+            Log.v("nanda", "DialogPlayerFragment isFinishing");
             getActivity().unbindService(connection);
             isBound = false;
 
@@ -200,6 +202,7 @@ public class DialogPlayerActivityFragment extends DialogFragment implements View
 
     public void initMediaPlayer(){
         seekBar.setProgress(0);
+        elapsedTime.setText("00:00");
         previewUrl = simpleTracks.get(position).getPreviewUrl();
         mediaPlayer.setPreviewUrl(previewUrl);
         mediaPlayer.initStart();
@@ -215,12 +218,26 @@ public class DialogPlayerActivityFragment extends DialogFragment implements View
         albumName.setText(simpleTracks.get(position).getAlbum());
         trackName.setText(simpleTracks.get(position).getTrack());
 
+        //endTime.setText(formatStringDuration(trackDuration));
+        //elapsedTime.setText("00:00");
+
 
         //ImageView albumImage = (ImageView) getView().findViewById(R.id.album_image);
         if (simpleTracks.get(position).getImage_640px() != null) {
             Picasso.with(getActivity()).load(simpleTracks.get(position).getImage_640px()).into(albumImage);
         }
     }
+
+    public String formatStringDuration(long millis){
+        String duration = String.format("%02d:%02d",
+
+                TimeUnit.MILLISECONDS.toMinutes(millis) -
+                        TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)), // The change is in this line
+                TimeUnit.MILLISECONDS.toSeconds(millis) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
+        return duration;
+    }
+
 
     @Override
     public void onClick(View v) {
@@ -292,6 +309,7 @@ public class DialogPlayerActivityFragment extends DialogFragment implements View
         outState.putParcelableArrayList("simpleTracks", simpleTracks);
         outState.putString("previewUrl", previewUrl);
         outState.putInt("position", position);
+        //outState.putLong("trackDuration",trackDuration);
     }
 
     @Override
@@ -319,6 +337,7 @@ public class DialogPlayerActivityFragment extends DialogFragment implements View
             simpleTracks = getArguments().getParcelableArrayList(SpotifyActivity.TRACK_LIST);
             position = getArguments().getInt(SpotifyActivity.POSITION);
             previewUrl = simpleTracks.get(position).getPreviewUrl();
+            //trackDuration = simpleTracks.get(position).getMsDuration();
         }
 
         artistName = (TextView) rootView.findViewById(R.id.artist_name);
@@ -327,9 +346,15 @@ public class DialogPlayerActivityFragment extends DialogFragment implements View
         //albumName.setText(simpleTracks.get(position).getAlbum());
         trackName = (TextView) rootView.findViewById(R.id.track_name);
         //trackName.setText(simpleTracks.get(position).getTrack());
+        elapsedTime = (TextView) rootView.findViewById(R.id.elapsed_time);
+        endTime = (TextView) rootView.findViewById(R.id.end_time);
+
 
         seekBar = (SeekBar) rootView.findViewById(R.id.seek_bar);
         seekBar.setOnSeekBarChangeListener(this);
+        seekBar.setMax((int) trackDuration);
+        //Log.d("nanda", "trackduration : "+trackDuration);
+
 
         albumImage = (ImageView) rootView.findViewById(R.id.album_image);
         //if (simpleTracks.get(position).getImage_640px() != null) {
@@ -337,7 +362,7 @@ public class DialogPlayerActivityFragment extends DialogFragment implements View
         //}
         setDialogView();
 
-        Log.v("nanda", "DialogPlayerFragment onCreateView");
+        //Log.v("nanda", "DialogPlayerFragment onCreateView");
 
         return rootView;
 
@@ -364,8 +389,8 @@ public class DialogPlayerActivityFragment extends DialogFragment implements View
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (fromUser && (mediaPlayer != null)) {
-            progress = (int)Math.round((progress/100.0)*30000);
-            mediaPlayer.seekTo((int)progress);
+            //progress = (int)Math.round((progress/100.0)*30000);
+            mediaPlayer.seekTo(progress);
         }
     }
 

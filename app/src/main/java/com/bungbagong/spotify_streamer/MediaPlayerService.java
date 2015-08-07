@@ -170,13 +170,11 @@ public void pause(){
 private Runnable MediaPlayerRunnable =     new Runnable() {
     @Override
     public void run() {
-        long pos = mMediaPlayer.getCurrentPosition();
+        progress = mMediaPlayer.getCurrentPosition();
         //Log.d("current position =", Long.toString(pos));
-        long duration = 30000;
-        //Log.d("duration =", Long.toString(duration));
-        double temp = ((double)pos/(double)duration)*100;
+
         //Log.d("temp =", Double.toString(temp));
-        progress = (int)temp;
+        //progress = (int)pos;
         //Log.d("progress = ", Integer.toString(progress));
         progressHandler.postDelayed(this, 100);
     }
