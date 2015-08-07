@@ -1,10 +1,9 @@
 package com.bungbagong.spotify_streamer;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.NavUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -178,12 +177,13 @@ public class TopTrackActivityFragment extends Fragment {
         //Called if cancel() was called. Toast and return to MainActivity
         @Override
         protected void onCancelled(List<SimpleTrack> simpleTracks) { //called if Retrofit error
+            Log.d("nanda", "error no internet connection on artist list");
             Toast.makeText(getActivity(), getString(R.string.no_internet_error),
                                                                 Toast.LENGTH_LONG).show();
 
-            NavUtils.navigateUpTo(getActivity(), new Intent
-                    (getActivity(), SpotifyActivity.class).setFlags
-                    (Intent.FLAG_ACTIVITY_CLEAR_TOP));  //returning to Main Activity
+            //NavUtils.navigateUpTo(getActivity(), new Intent
+            //        (getActivity(), SpotifyActivity.class).setFlags
+            //        (Intent.FLAG_ACTIVITY_CLEAR_TOP));  //returning to Main Activity
         }
 
         //getting url of image with equal targetWidth or one step smaller

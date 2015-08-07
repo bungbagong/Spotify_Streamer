@@ -7,10 +7,9 @@ import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
-import android.util.Log;
 import android.widget.Toast;
 
-public class MediaPlayerService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
+public class MediaPlayerService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener {
 
     private final IBinder binder = new MediaPlayerBinder();
     private MediaPlayer mMediaPlayer;
@@ -50,9 +49,6 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnPrepare
     @Override
     public IBinder onBind(Intent intent) {
 
-        //previewUrl = intent.getStringExtra(PREVIEW_URL);
-        //Log.v("Service get Preview", previewUrl);
-
         return binder;
     }
 
@@ -77,7 +73,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnPrepare
     public void onPrepared(MediaPlayer mp) {
         mp.start();
         isSongPlaying = true;
-        Log.d("nanda","mediaPlayer Start()");
+        watchProgress();
     }
 
     @Override
@@ -87,6 +83,14 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnPrepare
         progressHandler.removeCallbacks(MediaPlayerRunnable);
         mMediaPlayer.release();
         mMediaPlayer = null;
+    }
+
+    @Override
+    public boolean onError(MediaPlayer mp, int what, int extra) {
+        Toast.makeText(getApplicationContext(), "Error on Media Player playback. " +
+                "Please check your internet connection and try again later", Toast.LENGTH_LONG).show();
+        mp.reset();
+        return true;
     }
 
     @Override
@@ -108,7 +112,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnPrepare
         progress = 0;
         isSongPlaying = false;
         isSongCompleted = false;
-        String url = previewUrl; //"https://p.scdn.co/mp3-preview/18d0a45538122fbe33f22604d0e5608789c10ae4";
+        String url = previewUrl;
 
         if (mMediaPlayer!=null){
             mMediaPlayer.release();
@@ -123,9 +127,11 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnPrepare
         }
         mMediaPlayer.setOnPreparedListener(this);
         mMediaPlayer.setOnCompletionListener(this);
+        mMediaPlayer.setOnErrorListener(this);
+
         mMediaPlayer.prepareAsync();
 
-        watchProgress();
+
     }
 
 public void pause(){
@@ -162,7 +168,6 @@ public void pause(){
 
 
     public void seekTo(int progress){
-        Log.d("nanda","mMediaPlayer seekTo "+progress);
         mMediaPlayer.seekTo(progress);
     }
 
@@ -171,11 +176,6 @@ private Runnable MediaPlayerRunnable =     new Runnable() {
     @Override
     public void run() {
         progress = mMediaPlayer.getCurrentPosition();
-        //Log.d("current position =", Long.toString(pos));
-
-        //Log.d("temp =", Double.toString(temp));
-        //progress = (int)pos;
-        //Log.d("progress = ", Integer.toString(progress));
         progressHandler.postDelayed(this, 100);
     }
 };
