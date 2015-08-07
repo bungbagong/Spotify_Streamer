@@ -7,7 +7,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -22,13 +21,13 @@ public class TrackPlayerActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        Log.v("nanda", "TrackPlayerActivity is Stop");
+        //Log.v("nanda", "TrackPlayerActivity is Stop");
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.v("nanda", "TrackPlayerActivity is destroyed");
+        //Log.v("nanda", "TrackPlayerActivity is destroyed");
     }
 
     @Override
@@ -36,7 +35,7 @@ public class TrackPlayerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_track_player);
 
-        Log.v("nanda", "TrackPlayerActivity is created");
+        //Log.v("nanda", "TrackPlayerActivity is created");
 
         FragmentManager fm = getSupportFragmentManager();
         dialogFragment = (DialogFragment) fm.findFragmentByTag("dialog_fragment");
