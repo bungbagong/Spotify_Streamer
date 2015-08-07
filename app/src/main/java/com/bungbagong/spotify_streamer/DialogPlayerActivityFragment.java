@@ -65,7 +65,7 @@ public class DialogPlayerActivityFragment extends DialogFragment implements View
                     //double temp = (pos/(double)trackDuration)*100;
 
                     seekBar.setProgress(mediaPlayer.getProgress());
-                    elapsedTime.setText(formatStringDuration(mediaPlayer.getProgress()+500));
+                    elapsedTime.setText(formatStringDuration(mediaPlayer.getProgress() + 500));
                 }
 
                 if (mediaPlayer.isSongCompleted()) {
@@ -218,13 +218,13 @@ public class DialogPlayerActivityFragment extends DialogFragment implements View
         albumName.setText(simpleTracks.get(position).getAlbum());
         trackName.setText(simpleTracks.get(position).getTrack());
 
-        //endTime.setText(formatStringDuration(trackDuration));
-        //elapsedTime.setText("00:00");
+        endTime.setText(formatStringDuration(trackDuration));
+        elapsedTime.setText("00:00");
 
 
         //ImageView albumImage = (ImageView) getView().findViewById(R.id.album_image);
         if (simpleTracks.get(position).getImage_640px() != null) {
-            Picasso.with(getActivity()).load(simpleTracks.get(position).getImage_640px()).into(albumImage);
+                   Picasso.with(getActivity()).load(simpleTracks.get(position).getImage_640px()).into(albumImage);
         }
     }
 
