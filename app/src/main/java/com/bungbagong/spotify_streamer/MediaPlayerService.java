@@ -105,6 +105,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnPrepare
     }
 
     public void initStart(){
+        progress = 0;
         isSongPlaying = false;
         isSongCompleted = false;
         String url = previewUrl; //"https://p.scdn.co/mp3-preview/18d0a45538122fbe33f22604d0e5608789c10ae4";
@@ -148,6 +149,7 @@ public void pause(){
 
     public void release(){
         progressHandler.removeCallbacks(MediaPlayerRunnable);
+        progress = 0;
         mMediaPlayer.release();
         isSongPlaying = false;
 
@@ -156,6 +158,12 @@ public void pause(){
     public void stop(){
         mMediaPlayer.stop();
         isSongPlaying = false;
+    }
+
+
+    public void seekTo(int progress){
+        Log.d("nanda","mMediaPlayer seekTo "+progress);
+        mMediaPlayer.seekTo(progress);
     }
 
 

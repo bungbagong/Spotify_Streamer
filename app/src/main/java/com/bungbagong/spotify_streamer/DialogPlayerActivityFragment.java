@@ -28,12 +28,12 @@ import java.util.ArrayList;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class DialogPlayerActivityFragment extends DialogFragment implements View.OnClickListener {
+public class DialogPlayerActivityFragment extends DialogFragment implements View.OnClickListener, SeekBar.OnSeekBarChangeListener {
 
     boolean mIsLargeLayout;
     private MediaPlayerService mediaPlayer;
     private boolean isBound = false;
-    private boolean isPaused = true;
+    private boolean isPaused = false;
     private boolean isInit = false;
     private ArrayList<SimpleTrack> simpleTracks;
     private int position;
@@ -44,8 +44,40 @@ public class DialogPlayerActivityFragment extends DialogFragment implements View
     private ImageView albumImage;
     private Handler progressHandler;
     private SeekBar seekBar;
+    private ImageButton playButton;
+    private TextView elapsedTime;
+    private TextView endTime;
+
+    private Runnable ProgressRunnable = new Runnable() {
+
+        boolean isPlaying = false;
 
 
+        @Override
+        public void run() {
+
+
+            if (mediaPlayer != null) {
+                if (mediaPlayer.isSongPlaying()) {
+                    //if (!isPlaying) {
+                    //    playButton.setImageResource(android.R.drawable.ic_media_pause);
+                    //    isPlaying = true;
+                    //}
+                    seekBar.setProgress(mediaPlayer.getProgress());
+                    //Log.d("nanda", Integer.toString(mediaPlayer.getProgress()));
+                }
+
+                if (mediaPlayer.isSongCompleted()) {
+                    isInit = false;
+                    playButton.setImageResource(android.R.drawable.ic_media_play);
+                    Log.d("nanda", "isInit false");
+
+                }
+            }
+
+            progressHandler.postDelayed(this, 100);
+        }
+    };
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -81,14 +113,14 @@ public class DialogPlayerActivityFragment extends DialogFragment implements View
         //if (getDialog() != null && getRetainInstance())
         //    getDialog().setDismissMessage(null);
         super.onDestroyView();
-            }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setRetainInstance(true);
         Log.d("dialogsetRetainInstance", String.valueOf(getRetainInstance()));
-        if(savedInstanceState!= null) {
+        if (savedInstanceState != null) {
             isInit = savedInstanceState.getBoolean("isInit");
             isBound = savedInstanceState.getBoolean("isBound");
             isPaused = savedInstanceState.getBoolean("isPaused");
@@ -124,22 +156,17 @@ public class DialogPlayerActivityFragment extends DialogFragment implements View
         getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
 
 
-
-
-
-
-
     }
 
     @Override
     public void onStop() {
         super.onStop();
-                Log.v("nanda", "DialogPlayerFragment onStop");
+        Log.v("nanda", "DialogPlayerFragment onStop");
         getActivity().unbindService(connection);
         isBound = false;
         progressHandler.removeCallbacks(ProgressRunnable);
 
-        if(isBound && getActivity().isFinishing()){
+        if (isBound && getActivity().isFinishing()) {
             progressHandler.removeCallbacks(ProgressRunnable);
             mediaPlayer.release();
             Log.v("nanda", "DialogPlayerFragment isFInishing");
@@ -149,113 +176,119 @@ public class DialogPlayerActivityFragment extends DialogFragment implements View
         }
     }
 
+    public int getSongPosition(boolean isNext){
+        int size = simpleTracks.size();
+        if (isNext) {
 
+            if (position == size - 1) {
+                position = 0;
+
+            } else {
+                position += 1;
+            }
+            return position;
+        } else {
+            if (position == 0) {
+                position = size - 1;
+
+            } else {
+                position -= 1;
+            }
+            return position;
+        }
+    }
+
+    public void initMediaPlayer(){
+        seekBar.setProgress(0);
+        previewUrl = simpleTracks.get(position).getPreviewUrl();
+        mediaPlayer.setPreviewUrl(previewUrl);
+        mediaPlayer.initStart();
+        isInit=true;
+        isPaused=false;
+    }
+
+
+    public void setDialogView(){
+
+
+        artistName.setText(simpleTracks.get(position).getArtist());
+        albumName.setText(simpleTracks.get(position).getAlbum());
+        trackName.setText(simpleTracks.get(position).getTrack());
+
+
+        //ImageView albumImage = (ImageView) getView().findViewById(R.id.album_image);
+        if (simpleTracks.get(position).getImage_640px() != null) {
+            Picasso.with(getActivity()).load(simpleTracks.get(position).getImage_640px()).into(albumImage);
+        }
+    }
 
     @Override
     public void onClick(View v) {
-        if (mediaPlayer!=null){
-        switch(v.getId()){
-            case R.id.button_previous: {
-                int size = simpleTracks.size();
-                if (position == 0) {
-                    position = size - 1;
+        if (mediaPlayer != null) {
+            switch (v.getId()) {
+                case R.id.button_previous: {
+                    isInit = false;
+                    isPaused = true;
 
-                } else {
-                    position -= 1;
+
+                    position = getSongPosition(false);
+                    initMediaPlayer();
+                    setDialogView();
+                    setPlayButton();
+                    break;
                 }
-                previewUrl = simpleTracks.get(position).getPreviewUrl();
-
-                artistName.setText(simpleTracks.get(position).getArtist());
-                albumName.setText(simpleTracks.get(position).getAlbum());
-                trackName.setText(simpleTracks.get(position).getTrack());
-
-
-                ImageView albumImage = (ImageView) getView().findViewById(R.id.album_image);
-                if(simpleTracks.get(position).getImage_640px() != null){
-                    Picasso.with(getActivity()).load(simpleTracks.get(position).getImage_640px()).into(albumImage);
-                }
-
-                Log.v("bungbagong", previewUrl);
-                if (isInit) {
-                    mediaPlayer.release();
-                }
-                mediaPlayer.setPreviewUrl(previewUrl);
-                mediaPlayer.initStart();
-
-                isInit = true;
-                isPaused = false;
-
-                break;
-            }
-            case R.id.button_play: {
-                if (!isInit) {
-                    mediaPlayer.setPreviewUrl(previewUrl);
-                    mediaPlayer.initStart();
-                    Log.d("nanda", "button play isInit true");
-                    //((ImageButton) v.findViewById(R.id.button_play)).setImageResource(android.R.drawable.ic_media_pause);
-                    isInit = true;
-                    isPaused = false;
-                } else
-
-                    if (!isPaused) {
-                        //((ImageButton) v.findViewById(R.id.button_play)).setImageResource(android.R.drawable.ic_media_play);
+                case R.id.button_play: {
+                    if (!isInit) {
+                        initMediaPlayer();
+                        //Log.d("nanda", "button play isInit true");
+                        //playButton.setImageResource(android.R.drawable.ic_media_pause);
+                    } else if (!isPaused) {
                         isPaused = true;
                         mediaPlayer.pause();
+                        //playButton.setImageResource(android.R.drawable.ic_media_play);
                     } else if (isPaused) {
-                        //((ImageButton) v.findViewById(R.id.button_play)).setImageResource(android.R.drawable.ic_media_pause);
                         isPaused = false;
                         mediaPlayer.start();
+                        //playButton.setImageResource(android.R.drawable.ic_media_pause);
                     }
+                    setPlayButton();
 
+                    break;
+                }
+                case R.id.button_next: {
+                    isInit = false;
+                    isPaused = true;
 
+                    position = getSongPosition(true);
+                    setDialogView();
+                    initMediaPlayer();
+                    setPlayButton();
 
+                    break;
+                }
+                default:
+                    break;
 
-                break;
             }
-            case R.id.button_next: {
-                int size = simpleTracks.size();
-                if (position == size - 1) {
-                    position = 0;
-
-                } else {
-                    position += 1;
-                }
-                previewUrl = simpleTracks.get(position).getPreviewUrl();
-
-                artistName.setText(simpleTracks.get(position).getArtist());
-                albumName.setText(simpleTracks.get(position).getAlbum());
-                trackName.setText(simpleTracks.get(position).getTrack());
-
-                ImageView albumImage = (ImageView) getView().findViewById(R.id.album_image);
-                if(simpleTracks.get(position).getImage_640px() != null){
-                    Picasso.with(getActivity()).load(simpleTracks.get(position).getImage_640px()).into(albumImage);
-                }
-
-                //Log.v("bungbagong", previewUrl);
-                if (isInit) {
-                    mediaPlayer.release();
-                }
-                mediaPlayer.setPreviewUrl(previewUrl);
-                mediaPlayer.initStart();
-
-                isInit = true;
-                isPaused = false;
-
-                break;
-            }
-            default:
-                break;
 
         }
+    }
 
-    }}
+
+    public void setPlayButton(){
+        if(isPaused) {
+            playButton.setImageResource(android.R.drawable.ic_media_play);
+        } else {
+            playButton.setImageResource(android.R.drawable.ic_media_pause);
+        }
+    }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean("isBound", isBound);
-        outState.putBoolean("isInit",isInit);
-        outState.putBoolean("isPaused",isPaused);
+        outState.putBoolean("isInit", isInit);
+        outState.putBoolean("isPaused", isPaused);
         outState.putParcelableArrayList("simpleTracks", simpleTracks);
         outState.putString("previewUrl", previewUrl);
         outState.putInt("position", position);
@@ -266,15 +299,15 @@ public class DialogPlayerActivityFragment extends DialogFragment implements View
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_dialog_track_player, container, false);
-
-        if(isPaused) {
-            ImageButton button_play = (ImageButton) rootView.findViewById(R.id.button_play);
-            button_play.setOnClickListener(this);
-            button_play.setImageResource(android.R.drawable.ic_media_play);
+        
+        playButton = (ImageButton) rootView.findViewById(R.id.button_play);
+        
+        if (isPaused) {
+            playButton.setOnClickListener(this);
+            playButton.setImageResource(android.R.drawable.ic_media_play);
         } else {
-            ImageButton button_play = (ImageButton) rootView.findViewById(R.id.button_play);
-            button_play.setOnClickListener(this);
-            button_play.setImageResource(android.R.drawable.ic_media_pause);
+            playButton.setOnClickListener(this);
+            playButton.setImageResource(android.R.drawable.ic_media_pause);
         }
 
         ImageButton button_next = (ImageButton) rootView.findViewById(R.id.button_next);
@@ -282,26 +315,27 @@ public class DialogPlayerActivityFragment extends DialogFragment implements View
         ImageButton button_previous = (ImageButton) rootView.findViewById(R.id.button_previous);
         button_previous.setOnClickListener(this);
 
-        if(!isInit) {
+        if (!isInit) {
             simpleTracks = getArguments().getParcelableArrayList(SpotifyActivity.TRACK_LIST);
             position = getArguments().getInt(SpotifyActivity.POSITION);
             previewUrl = simpleTracks.get(position).getPreviewUrl();
         }
 
         artistName = (TextView) rootView.findViewById(R.id.artist_name);
-        artistName.setText(simpleTracks.get(position).getArtist());
+        //artistName.setText(simpleTracks.get(position).getArtist());
         albumName = (TextView) rootView.findViewById(R.id.album_name);
-        albumName.setText(simpleTracks.get(position).getAlbum());
+        //albumName.setText(simpleTracks.get(position).getAlbum());
         trackName = (TextView) rootView.findViewById(R.id.track_name);
-        trackName.setText(simpleTracks.get(position).getTrack());
+        //trackName.setText(simpleTracks.get(position).getTrack());
 
         seekBar = (SeekBar) rootView.findViewById(R.id.seek_bar);
+        seekBar.setOnSeekBarChangeListener(this);
 
         albumImage = (ImageView) rootView.findViewById(R.id.album_image);
-        if(simpleTracks.get(position).getImage_640px() != null) {
-            Picasso.with(getActivity()).load(simpleTracks.get(position).getImage_640px()).into(albumImage);
-        }
-
+        //if (simpleTracks.get(position).getImage_640px() != null) {
+        //    Picasso.with(getActivity()).load(simpleTracks.get(position).getImage_640px()).into(albumImage);
+        //}
+        setDialogView();
 
         Log.v("nanda", "DialogPlayerFragment onCreateView");
 
@@ -321,51 +355,27 @@ public class DialogPlayerActivityFragment extends DialogFragment implements View
         return dialog;
     }
 
-    public void watchProgress(){
+    public void watchProgress() {
         progressHandler = new Handler();
         progressHandler.post(ProgressRunnable);
 
     }
 
-
-private Runnable ProgressRunnable = new Runnable() {
-
-    boolean isPlaying = false;
-
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        if (fromUser && (mediaPlayer != null)) {
+            progress = (int)Math.round((progress/100.0)*30000);
+            mediaPlayer.seekTo((int)progress);
+        }
+    }
 
     @Override
-    public void run() {
+    public void onStopTrackingTouch(SeekBar seekBar) {
 
+    }
 
-        if (mediaPlayer != null) {
-            if (mediaPlayer.isSongPlaying()) {
-                if (!isPlaying) {
-                    ((ImageButton) getView().findViewById(R.id.button_play)).setImageResource(android.R.drawable.ic_media_pause);
-                    isPlaying = true;
-                }
-                seekBar.setProgress(mediaPlayer.getProgress());
-                //Log.d("nanda", Integer.toString(mediaPlayer.getProgress()));
-            } else if (!mediaPlayer.isSongPlaying()) {
-                if (isPlaying) {
-                    ((ImageButton) getView().findViewById(R.id.button_play)).setImageResource(android.R.drawable.ic_media_play);
-                    isPlaying = false;
-                }
-            }}
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
 
-            if (mediaPlayer.isSongCompleted()) {
-                isInit = false;
-                Log.d("nanda","isInit false");
-;
-            }
-
-
-
-
-
-
-            progressHandler.postDelayed(this, 100);
-        }
-};
-
-
+    }
 }

@@ -125,9 +125,9 @@ public class TopTrackActivityFragment extends Fragment {
                 Toast.makeText(getActivity(),getString(R.string.no_top_track_error),
                                                                 Toast.LENGTH_LONG).show();
 
-                NavUtils.navigateUpTo(getActivity(), new Intent
-                        (getActivity(), SpotifyActivity.class).setFlags
-                        (Intent.FLAG_ACTIVITY_CLEAR_TOP));  //returning to Main Activity
+                //NavUtils.navigateUpTo(getActivity(), new Intent
+                //        (getActivity(), SpotifyActivity.class).setFlags
+                //        (Intent.FLAG_ACTIVITY_CLEAR_TOP));  //returning to Main Activity
 
             } else {
                 buildAdapter(getView(), topTracksResult); //rebuild the view based on result
